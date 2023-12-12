@@ -1,0 +1,45 @@
+{
+  "name": "em-guide-app",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Strapi application",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@faire/mjml-react": "^3.3.0",
+    "@strapi/plugin-cloud": "4.15.5",
+    "@strapi/plugin-i18n": "4.15.5",
+    "@strapi/plugin-users-permissions": "4.15.5",
+    "@strapi/provider-email-nodemailer": "^4.15.5",
+    "@strapi/strapi": "4.15.5",
+    "better-sqlite3": "8.6.0",
+    "mjml": "^4.14.1",
+    "mjml-core": "^4.14.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "5.3.4",
+    "strapi-plugin-comments": "^2.2.15",
+    "strapi-plugin-paper-trail": "^0.3.0",
+    "strapi-provider-email-resend": "^1.0.4",
+    "styled-components": "5.3.3"
+  },
+  "author": {
+    "name": "revnandi"
+  },
+  "strapi": {
+    "uuid": "3ec4b415-2782-4eb2-af04-0087df5c1bfb"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/mjml": "^4.7.4",
+    "@types/mjml-core": "^4.7.4"
+  }
+}

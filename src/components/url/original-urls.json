@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_url_original_urls",
+  "info": {
+    "displayName": "originalUrls",
+    "icon": "alien"
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string"
+    }
+  }
+}
