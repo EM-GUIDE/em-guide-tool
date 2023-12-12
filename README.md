@@ -1,12 +1,33 @@
-# 🚀 Getting started with Strapi
+# 🚀 EM Guide
 
-Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
+EM Guide is a tool designed to support the editorial group work of online journalists. 
+
+## Features
+
+- Document and manage articles
+- Create translation requests 
+- Email notifications
+- Search and filter articles
+- Content versioning
+
+## Getting started
+
+### Email notifications
+
+By default, EM Guide uses [Resed](https://resend.com/) as the default provider for transactional emails. To enable this functionality, you need to specify the RESEND_API_KEY in your .env file. You can change the email provider in the plugin configuration file file located at `/config/plugins.ts`. 
+For more details, you can refer to the documentation [here](https://docs.strapi.io/dev-docs/providers).
+
+
+
+## ⚙️ Deployment
 
 ### `develop`
 
 Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)
 
 ```
+pnpm develop
+# or
 npm run develop
 # or
 yarn develop
@@ -17,6 +38,8 @@ yarn develop
 Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-start)
 
 ```
+pnpm run start
+# or
 npm run start
 # or
 yarn start
@@ -27,14 +50,14 @@ yarn start
 Build your admin panel. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-build)
 
 ```
+pnpm run build
+# or
 npm run build
 # or
 yarn build
 ```
 
-## ⚙️ Deployment
-
-Strapi gives you many possible deployment options for your project including [Strapi Cloud](https://cloud.strapi.io). Browse the [deployment section of the documentation](https://docs.strapi.io/dev-docs/deployment) to find the best solution for your use case.
+Strapi also comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
 
 ## 📚 Learn more
 
@@ -53,5 +76,3 @@ Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/
 - [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
 
 ---
-
-<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>

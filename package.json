@@ -2,7 +2,7 @@
   "name": "em-guide-app",
   "private": true,
   "version": "0.1.0",
-  "description": "A Strapi application",
+  "description": "Em Guide",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",
