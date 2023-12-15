@@ -10,6 +10,11 @@
     "comment": {
       "type": "blocks",
       "required": true
+    },
+    "admin_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "admin::user"
     }
   }
 }

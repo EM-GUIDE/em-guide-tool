@@ -9,6 +9,11 @@ export interface CommentsComments extends Schema.Component {
   };
   attributes: {
     comment: Attribute.Blocks & Attribute.Required;
+    admin_user: Attribute.Relation<
+      'comments.comments',
+      'oneToOne',
+      'admin::user'
+    >;
   };
 }
 

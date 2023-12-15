@@ -55,24 +55,6 @@
       },
       "type": "text"
     },
-    "status": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      },
-      "type": "enumeration",
-      "enum": [
-        "open",
-        "claimed",
-        "in_progress",
-        "in_review",
-        "flagged",
-        "accepted"
-      ],
-      "default": "open",
-      "required": true
-    },
     "admin_user": {
       "type": "relation",
       "relation": "oneToOne",

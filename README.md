@@ -12,12 +12,14 @@ EM Guide is a tool designed to support the editorial group work of online journa
 
 ## Getting started
 
+### Adding articles
+
+Admin users can add articles in the Conten Manager.
+
 ### Email notifications
 
 By default, EM Guide uses [Resed](https://resend.com/) as the default provider for transactional emails. To enable this functionality, you need to specify the RESEND_API_KEY in your .env file. You can change the email provider in the plugin configuration file file located at `/config/plugins.ts`. 
 For more details, you can refer to the documentation [here](https://docs.strapi.io/dev-docs/providers).
-
-
 
 ## ⚙️ Deployment
 

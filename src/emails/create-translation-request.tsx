@@ -13,22 +13,24 @@ import {
   MjmlWrapper,
 } from "@faire/mjml-react";
 
-interface CreateArticleEmailTemplateProps {
+interface CreateTranslationRequestEmailTemplateProps {
   articleTitle: string;
+  language: string;
   createdByName: string;
   link: string;
 }
 
-export const createArticleEmailTemplate = ({
+export const createTranslationRequestEmailTemplate = ({
   articleTitle,
+  language,
   createdByName,
   link,
-}: CreateArticleEmailTemplateProps) => {
+}: CreateTranslationRequestEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
-        <MjmlTitle>EM Guide | New article created</MjmlTitle>
-        <MjmlPreview>{createdByName} has created a new article...</MjmlPreview>
+        <MjmlTitle>EM Guide | New translation request created</MjmlTitle>
+        <MjmlPreview>{createdByName} has created a new translation request...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
@@ -40,7 +42,7 @@ export const createArticleEmailTemplate = ({
             lineHeight="1.5"
             paddingBottom=" 16px"
           >
-            EM Guide | New article created
+            EM Guide | New translation request created
           </MjmlText>
           <MjmlDivider padding="16px 0" border-width="1px" border-color="#F6F6F9" />
         </MjmlSection>
@@ -51,7 +53,7 @@ export const createArticleEmailTemplate = ({
           color="#4A4A6A"
           font-family="sans-serif"
         >
-          {createdByName} has created a new article: {articleTitle}. You can
+          {createdByName} has created a new {language} language translation request for the article {articleTitle}. You can
           view it by clicking the link below.
         </MjmlText>
         <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
@@ -67,7 +69,7 @@ export const createArticleEmailTemplate = ({
             textAlign="center"
             align="center"
           >
-            Open article
+            Open translation request
           </MjmlButton>
         </MjmlWrapper>
         </MjmlSection>

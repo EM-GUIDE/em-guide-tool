@@ -409,16 +409,6 @@ export interface ApiArticleArticle extends Schema.CollectionType {
           localized: true;
         };
       }>;
-    status: Attribute.Enumeration<
-      ['open', 'claimed', 'in_progress', 'in_review', 'flagged', 'accepted']
-    > &
-      Attribute.Required &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false;
-        };
-      }> &
-      Attribute.DefaultTo<'open'>;
     admin_user: Attribute.Relation<
       'api::article.article',
       'oneToOne',
