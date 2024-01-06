@@ -12,4 +12,8 @@ export default ({ env }) => ({
       },
     },
   },
+  'admin-email-notifications': {
+    enabled: true,
+    resolve: './src/plugins/admin-email-notifications'
+  }
 });

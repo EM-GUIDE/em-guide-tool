@@ -40,14 +40,14 @@ export default {
 
   async afterCreate(event) {
     const { result, params  } = event;
+
     const administrators = await strapi.query("admin::user").findMany();
     const emailsAddresses = administrators.map((admin) => admin.email);
-    const creator = administrators.find((admin) => admin.id === 1);
+    const creator = administrators.find((admin) => admin.id === result.createdBy.id);
     const { firstname, lastname } = creator;
 
     const connectedArticle = await strapi.entityService.findOne('api::article.article', params.data.article.connect[0].id);
 
-    console.log(connectedArticle)
     if (!connectedArticle) {
       throw new ValidationError('Article not found');
     }
@@ -71,4 +71,5 @@ export default {
       })
     }
   },
+
 };

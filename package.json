@@ -5,17 +5,21 @@
   "description": "Em Guide",
   "scripts": {
     "develop": "strapi develop",
+    "develop:admin": "strapi develop --watch-admin",
     "start": "strapi start",
     "build": "strapi build",
-    "strapi": "strapi"
+    "strapi": "strapi",
+    "prebuild": "cd src/plugins/admin-email-notifications && pnpm build"
   },
   "dependencies": {
     "@faire/mjml-react": "^3.3.0",
-    "@strapi/plugin-cloud": "4.15.5",
-    "@strapi/plugin-i18n": "4.15.5",
-    "@strapi/plugin-users-permissions": "4.15.5",
-    "@strapi/provider-email-nodemailer": "^4.15.5",
-    "@strapi/strapi": "4.15.5",
+    "@strapi/design-system": "^1.13.2",
+    "@strapi/icons": "^1.13.2",
+    "@strapi/plugin-cloud": "4.16.2",
+    "@strapi/plugin-i18n": "4.16.2",
+    "@strapi/plugin-users-permissions": "4.16.2",
+    "@strapi/provider-email-nodemailer": "^4.16.2",
+    "@strapi/strapi": "4.16.2",
     "better-sqlite3": "8.6.0",
     "mjml": "^4.14.1",
     "mjml-core": "^4.14.1",
@@ -24,6 +28,7 @@
     "react-router-dom": "5.3.4",
     "strapi-plugin-comments": "^2.2.15",
     "strapi-plugin-paper-trail": "^0.3.0",
+    "strapi-plugin-populate-deep": "^3.0.1",
     "strapi-provider-email-resend": "^1.0.4",
     "styled-components": "5.3.3"
   },
@@ -40,6 +45,8 @@
   "license": "MIT",
   "devDependencies": {
     "@types/mjml": "^4.7.4",
-    "@types/mjml-core": "^4.7.4"
+    "@types/mjml-core": "^4.7.4",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/styled-components": "^5.1.34"
   }
 }

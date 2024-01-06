@@ -83,7 +83,7 @@
       "repeatable": true,
       "pluginOptions": {
         "i18n": {
-          "localized": true
+          "localized": false
         }
       },
       "component": "comments.comments"
@@ -92,6 +92,30 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::author.author",
+      "inversedBy": "articles"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "subscribers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "admin::user"
+    },
+    "origin": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::magazine.magazine",
       "inversedBy": "articles"
     }
   }
