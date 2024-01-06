@@ -56,7 +56,7 @@ exports.default = {
                     createdByName: `${firstname} ${lastname}`,
                     language: result.language,
                     // TODO make this less hardcoded
-                    link: `http://localhost:1337/admin/content-manager/collectionType/api::translation-request.translation-request/${result.id}`
+                    link: `${(0, utils_1.env)('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${result.id}`
                 })
             });
         }

@@ -1,5 +1,6 @@
 import { createArticleEmailTemplate } from "../../../../emails/create-article";
 import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
+import { env } from '@strapi/utils';
 
 export default {
   async afterCreate(event) {
@@ -20,8 +21,7 @@ export default {
           {
             articleTitle: result.title,
             createdByName: `${firstname} ${lastname}`,
-            // TODO make this less hardcoded
-            link: `http://localhost:1337/admin/content-manager/collectionType/api::article.article/${result.id}`
+            link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${result.id}`
           })
       })
     }
@@ -52,8 +52,6 @@ export default {
 
     const { firstname, lastname } = event.result.updatedBy;
 
-    console.log(`${firstname} ${lastname}`)
-
     for (let i = 0; i < subscribedAdministrators.length; i++) {
       const { firstname, lastname, email } = subscribedAdministrators[i];
       await strapi.plugins['email'].services.email.send({
@@ -65,8 +63,7 @@ export default {
           {
             articleTitle: event.result.title,
             createdByName: `${firstname} ${lastname}`,
-            // TODO make this less hardcoded
-            link: `http://localhost:1337/admin/content-manager/collectionType/api::article.article/${event.result.id}`
+            link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${event.result.id}`
           })
       })
     }

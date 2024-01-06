@@ -1,5 +1,5 @@
 import { createTranslationRequestEmailTemplate } from "../../../../emails/create-translation-request";
-import { errors } from '@strapi/utils';
+import { errors, env } from '@strapi/utils';
 
 const { ValidationError } = errors;
 
@@ -52,7 +52,6 @@ export default {
       throw new ValidationError('Article not found');
     }
 
-
     for (let i = 0; i < emailsAddresses.length; i++) {
       const emailAddress = emailsAddresses[i];
       await strapi.plugins['email'].services.email.send({
@@ -66,7 +65,7 @@ export default {
             createdByName: `${firstname} ${lastname}`,
             language: result.language,
             // TODO make this less hardcoded
-            link: `http://localhost:1337/admin/content-manager/collectionType/api::translation-request.translation-request/${result.id}`
+            link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${result.id}`
           })
       })
     }

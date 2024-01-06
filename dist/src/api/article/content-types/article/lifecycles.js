@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const create_article_1 = require("../../../../emails/create-article");
 const updated_article_1 = require("../../../../emails/updated-article");
+const utils_1 = require("@strapi/utils");
 exports.default = {
     async afterCreate(event) {
         const { result } = event;
@@ -19,8 +20,7 @@ exports.default = {
                 html: (0, create_article_1.createArticleEmailTemplate)({
                     articleTitle: result.title,
                     createdByName: `${firstname} ${lastname}`,
-                    // TODO make this less hardcoded
-                    link: `http://localhost:1337/admin/content-manager/collectionType/api::article.article/${result.id}`
+                    link: `${(0, utils_1.env)('URL')}admin/content-manager/collectionType/api::article.article/${result.id}`
                 })
             });
         }
@@ -44,7 +44,6 @@ exports.default = {
         if (!event.result.updatedBy)
             return;
         const { firstname, lastname } = event.result.updatedBy;
-        console.log(`${firstname} ${lastname}`);
         for (let i = 0; i < subscribedAdministrators.length; i++) {
             const { firstname, lastname, email } = subscribedAdministrators[i];
             await strapi.plugins['email'].services.email.send({
@@ -55,8 +54,7 @@ exports.default = {
                 html: (0, updated_article_1.updatedArticleEmailTemplate)({
                     articleTitle: event.result.title,
                     createdByName: `${firstname} ${lastname}`,
-                    // TODO make this less hardcoded
-                    link: `http://localhost:1337/admin/content-manager/collectionType/api::article.article/${event.result.id}`
+                    link: `${(0, utils_1.env)('URL')}admin/content-manager/collectionType/api::article.article/${event.result.id}`
                 })
             });
         }
