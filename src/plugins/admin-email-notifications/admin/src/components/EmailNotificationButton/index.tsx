@@ -28,11 +28,13 @@ const Label = styled.span`
 `;
 
 const EmailNotificationButton = () => {
-  const { initialData, modifiedData } = useCMEditViewDataManager();
+  const { initialData, modifiedData, slug } = useCMEditViewDataManager();
   const { post } = useFetchClient();
   const toggleNotification = useNotification();
   const user = auth.get("userInfo");
   const [isSubscribed, setIsSubscribed] = useState(false);
+
+  if(slug !== "api::article.article") return null
 
   const { id, subscribers } = initialData as {
     id: number;
@@ -46,8 +48,6 @@ const EmailNotificationButton = () => {
     setIsSubscribed(isUserSubscribed);
   }, [subscribers, modifiedData, initialData]);
 
-  console.log(isSubscribed);
-
   const handleClick = async () => {
     setIsSubscribed(!isSubscribed);
 
@@ -55,7 +55,6 @@ const EmailNotificationButton = () => {
       adminId: user.id,
       articleId: id,
     });
-    console.log(res.data);
 
     toggleNotification({
       type: "success",
