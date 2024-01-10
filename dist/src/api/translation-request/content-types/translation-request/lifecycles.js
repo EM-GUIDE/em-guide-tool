@@ -7,19 +7,12 @@ const { ValidationError } = utils_1.errors;
 exports.default = {
     async beforeCreate(event) {
         const { data } = event.params;
-        // @ts-ignore
-        if (!data.article.connect[0].id) {
-            throw new ValidationError('An article is required to create translation requests.');
-        }
         const existingTranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
-            populate: {
-                article: {
-                    fields: ['id'],
-                }
-            },
+            populate: ['article'],
             filters: {
                 $and: [
                     {
+                        // @ts-ignore
                         language: data.language
                     },
                     {
@@ -30,7 +23,7 @@ exports.default = {
                 ],
             },
         });
-        // @ts-expect-error
+        // @ts-ignore
         if (existingTranslationRequests && existingTranslationRequests.length > 0) {
             throw new ValidationError('A translation request for this article in this language already exists.');
         }
@@ -87,6 +80,34 @@ exports.default = {
         //       })
         //   })
         // }
+    },
+    async beforeUpdate(event) {
+        const { data } = event.params;
+        const currentTranslationRequest = await strapi.entityService.findOne('api::translation-request.translation-request', data.id, {
+            populate: ['article'],
+        });
+        console.log(currentTranslationRequest);
+        const existingTranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+            populate: ['article'],
+            filters: {
+                $and: [
+                    {
+                        // @ts-ignore
+                        language: data.language
+                    },
+                    {
+                        article: {
+                            id: currentTranslationRequest.article.id
+                        }
+                    },
+                ],
+            },
+        });
+        console.log(existingTranslationRequests);
+        // @ts-ignore
+        if (existingTranslationRequests && existingTranslationRequests.length > 0) {
+            throw new ValidationError('A translation request for this article in this language already exists.');
+        }
     },
     async afterUpdate(event) {
         const { result, params } = event;

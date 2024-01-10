@@ -580,7 +580,8 @@ export interface ApiTranslationRequestTranslationRequest
       'api::translation-request.translation-request',
       'manyToOne',
       'api::article.article'
-    >;
+    > &
+      Attribute.Required;
     language: Attribute.Enumeration<['en', 'hu', 'it', 'es']> &
       Attribute.Required;
     status: Attribute.Enumeration<

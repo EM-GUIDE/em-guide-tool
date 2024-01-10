@@ -4,24 +4,35 @@ import { errors, env } from '@strapi/utils';
 
 const { ValidationError } = errors;
 
+interface ExistingTranslationRequest {
+  id: number,
+  createdAt: string,
+  updatedAt: string,
+  language: string,
+  status: string,
+  article?: {
+    id: number,
+    title: string,
+    slug: string,
+    createdAt: string,
+    updatedAt: string,
+    publishedAt: string,
+    locale: string,
+    url?: string,
+    excerpt: string,
+  }
+}
+
 export default {
   async beforeCreate(event) {
     const { data } = event.params;
 
-    // @ts-ignore
-    if (!data.article.connect[0].id) {
-      throw new ValidationError('An article is required to create translation requests.');
-    }
-
     const existingTranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
-      populate: {
-        article: {
-          fields: ['id'],
-        }
-      },
+      populate: ['article'],
       filters: {
         $and: [
           {
+            // @ts-ignore
             language: data.language
           },
           {
@@ -31,9 +42,9 @@ export default {
           },
         ],
       },
-    });
+    }) as ExistingTranslationRequest[];
 
-    // @ts-expect-error
+    // @ts-ignore
     if (existingTranslationRequests && existingTranslationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
@@ -101,6 +112,40 @@ export default {
     // }
   },
 
+  async beforeUpdate(event) {
+    const { data } = event.params;
+
+    const currentTranslationRequest = await strapi.entityService.findOne('api::translation-request.translation-request', data.id, {
+      populate: ['article'],
+    }) as ExistingTranslationRequest;
+
+    console.log(currentTranslationRequest);
+
+    const existingTranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+      populate: ['article'],
+      filters: {
+        $and: [
+          {
+            // @ts-ignore
+            language: data.language
+          },
+          {
+            article: {
+              id: currentTranslationRequest.article.id
+            }
+          },
+        ],
+      },
+    }) as ExistingTranslationRequest[];
+
+    console.log(existingTranslationRequests)
+
+    // @ts-ignore
+    if (existingTranslationRequests && existingTranslationRequests.length > 0) {
+      throw new ValidationError('A translation request for this article in this language already exists.');
+    }
+  },
+
   async afterUpdate(event) {
     const { result, params } = event;
 
@@ -123,7 +168,7 @@ export default {
       },
     });
 
-    if(!result.updatedBy) return
+    if (!result.updatedBy) return
 
     const updater = result.updatedBy;
     const updaterFirstname = updater.firstname;

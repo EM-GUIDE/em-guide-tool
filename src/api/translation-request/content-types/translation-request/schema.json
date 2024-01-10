@@ -20,7 +20,8 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::article.article",
-      "inversedBy": "translation_requests"
+      "inversedBy": "translation_requests",
+      "required": true
     },
     "language": {
       "type": "enumeration",
