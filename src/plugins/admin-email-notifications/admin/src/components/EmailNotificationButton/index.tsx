@@ -34,6 +34,8 @@ const EmailNotificationButton = () => {
   const user = auth.get("userInfo");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
+  console.log(initialData)
+
   if(slug !== "api::article.article") return null
 
   const { id, subscribers } = initialData as {

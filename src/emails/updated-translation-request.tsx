@@ -13,22 +13,22 @@ import {
   MjmlWrapper,
 } from "@faire/mjml-react";
 
-interface UpdatedArticleEmailTemplateProps {
+interface UpdatedTranslationRequestEmailTemplateProps {
   articleTitle: string;
   updatedByName: string;
   link: string;
 }
 
-export const updatedArticleEmailTemplate = ({
+export const updatedTranslationRequestEmailTemplate = ({
   articleTitle,
   updatedByName,
   link,
-}: UpdatedArticleEmailTemplateProps) => {
+}: UpdatedTranslationRequestEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
-        <MjmlTitle>EM Guide | Article updated</MjmlTitle>
-        <MjmlPreview>{updatedByName} has updated an article you have subscribed to...</MjmlPreview>
+        <MjmlTitle>EM Guide | Translation request updated</MjmlTitle>
+        <MjmlPreview>{updatedByName} has updated an translation request you have subscribed to...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
@@ -40,7 +40,7 @@ export const updatedArticleEmailTemplate = ({
             lineHeight="1.5"
             paddingBottom=" 16px"
           >
-            EM Guide | Article updated
+            EM Guide | Translation request updated
           </MjmlText>
           <MjmlDivider padding="16px 0" border-width="1px" border-color="#F6F6F9" />
         </MjmlSection>
@@ -51,7 +51,7 @@ export const updatedArticleEmailTemplate = ({
           color="#4A4A6A"
           font-family="sans-serif"
         >
-          {updatedByName} has updated an article: {articleTitle}. You can
+          {updatedByName} has updated a translation request: {articleTitle}. You can
           view it by clicking the link below.
         </MjmlText>
         <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
@@ -67,7 +67,7 @@ export const updatedArticleEmailTemplate = ({
             textAlign="center"
             align="center"
           >
-            Open article
+            Open translation request
           </MjmlButton>
         </MjmlWrapper>
         </MjmlSection>
