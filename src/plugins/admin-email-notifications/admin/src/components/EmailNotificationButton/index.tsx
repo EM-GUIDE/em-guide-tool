@@ -34,7 +34,7 @@ const EmailNotificationButton = () => {
   const user = auth.get("userInfo");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  if(slug !== "api::article.article") return null
+  if (slug !== "api::article.article") return null;
 
   const { id, subscribers } = initialData as {
     id: number;
@@ -42,9 +42,9 @@ const EmailNotificationButton = () => {
   };
 
   useEffect(() => {
-    const isUserSubscribed = subscribers.some(
-      (subscriber) => subscriber.id === user.id
-    );
+    const isUserSubscribed = !subscribers
+      ? false
+      : subscribers.some((subscriber) => subscriber.id === user.id);
     setIsSubscribed(isUserSubscribed);
   }, [subscribers, modifiedData, initialData]);
 

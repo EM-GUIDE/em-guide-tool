@@ -14,6 +14,7 @@ export interface CommentsComments extends Schema.Component {
       'oneToOne',
       'admin::user'
     >;
+    name: Attribute.String;
   };
 }
 

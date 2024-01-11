@@ -15,20 +15,20 @@ import {
 
 interface CreateArticleEmailTemplateProps {
   articleTitle: string;
-  createdByName: string;
+  name: string;
   link: string;
 }
 
 export const createArticleEmailTemplate = ({
   articleTitle,
-  createdByName,
+  name,
   link,
 }: CreateArticleEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
         <MjmlTitle>EM Guide | New article created</MjmlTitle>
-        <MjmlPreview>{createdByName} has created a new article...</MjmlPreview>
+        <MjmlPreview>{name} has created a new article...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
@@ -51,7 +51,7 @@ export const createArticleEmailTemplate = ({
           color="#4A4A6A"
           font-family="sans-serif"
         >
-          {createdByName} has created a new article: {articleTitle}. You can
+          {name} has created a new article: {articleTitle}. You can
           view it by clicking the link below.
         </MjmlText>
         <MjmlWrapper padding="16px 0" fullWidth textAlign="center">

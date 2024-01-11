@@ -4,7 +4,7 @@ import { errors, env } from '@strapi/utils';
 
 const { ValidationError } = errors;
 
-interface ExistingTranslationRequest {
+interface TranslationRequest {
   id: number,
   createdAt: string,
   updatedAt: string,
@@ -23,11 +23,49 @@ interface ExistingTranslationRequest {
   }
 }
 
+const sendEmails = async (
+  recipients: string[],
+  template: ({ articleTitle, name, language, link }: {
+    articleTitle: string;
+    name: string;
+    language?: string,
+    link: string;
+  }) => string,
+  title: string,
+  article: {
+    id: number;
+    title: string;
+  },
+  translationRequest: TranslationRequest,
+  creatorOrUpdater: {
+    id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+  }) => {
+  const promises = recipients.map(async (recipient) => {
+    await strapi.plugins['email'].services.email.send({
+      to: recipient,
+      from: 'hello@freizeit.hu',
+      replyTo: 'hello@freizeit.hu',
+      subject: title,
+      html: template({
+        articleTitle: article.title,
+        language: translationRequest.language,
+        name: `${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}`,
+        link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${article.id}`
+      })
+    });
+  });
+  await Promise.all(promises);
+};
+
+
 export default {
   async beforeCreate(event) {
     const { data } = event.params;
 
-    const existingTranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+    const TranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
       populate: ['article'],
       filters: {
         $and: [
@@ -42,10 +80,10 @@ export default {
           },
         ],
       },
-    }) as ExistingTranslationRequest[];
+    }) as TranslationRequest[];
 
     // @ts-ignore
-    if (existingTranslationRequests && existingTranslationRequests.length > 0) {
+    if (TranslationRequests && TranslationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
   },
@@ -55,61 +93,24 @@ export default {
 
     const connectedArticle = await strapi.entityService.findOne('api::article.article', params.data.article.connect[0].id, {
       populate: ["subscribers"]
-    });
+    }) as any;
 
     if (!connectedArticle) {
       throw new ValidationError('Article not found');
     }
-
+  
     const creator = result.createdBy;
-    const creatorFirstname = creator.firstname;
-    const creatorLastname = creator.lastname;
-
-    // @ts-ignore
-    const subscriberIds = connectedArticle.subscribers.map((subscriber) => subscriber.id);
-
-    const subscribedAdministrators = await strapi.query("admin::user").findMany({
-      where: {
-        id: {
-          $in: subscriberIds,
-        },
-      },
-    });
-
-    for (let i = 0; i < subscribedAdministrators.length; i++) {
-      const { email } = subscribedAdministrators[i];
-      await strapi.plugins['email'].services.email.send({
-        to: email,
-        from: 'hello@freizeit.hu', //e.g. single sender verification in SendGrid
-        replyTo: 'hello@freizeit.hu',
-        subject: 'EM Guide: New translation request has been created',
-        html: createTranslationRequestEmailTemplate(
-          {
-            articleTitle: connectedArticle.title as string,
-            language: result.language,
-            createdByName: `${creatorFirstname} ${creatorLastname}`,
-            link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${result.id}`
-          })
-      })
-    }
-
-    // // Notify all admins of the new translation request
-    // for (let i = 0; i < emailsAddresses.length; i++) {
-    //   const emailAddress = emailsAddresses[i];
-    //   await strapi.plugins['email'].services.email.send({
-    //     to: emailAddress,
-    //     from: 'hello@freizeit.hu', //e.g. single sender verification in SendGrid
-    //     replyTo: 'hello@freizeit.hu',
-    //     subject: 'EM Guide: New translation request has been created',
-    //     html: createTranslationRequestEmailTemplate(
-    //       {
-    //         articleTitle: connectedArticle.title as string,
-    //         createdByName: `${firstname} ${lastname}`,
-    //         language: result.language,
-    //         link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${result.id}`
-    //       })
-    //   })
-    // }
+  
+    const emailAddresses = connectedArticle.subscribers.map((subscriber) => subscriber.email);
+  
+    await sendEmails(
+      emailAddresses,
+      createTranslationRequestEmailTemplate,
+      'EM Guide: New translation request has been created',
+      connectedArticle,
+      result,
+      creator
+    );
   },
 
   async beforeUpdate(event) {
@@ -117,11 +118,9 @@ export default {
 
     const currentTranslationRequest = await strapi.entityService.findOne('api::translation-request.translation-request', data.id, {
       populate: ['article'],
-    }) as ExistingTranslationRequest;
+    }) as TranslationRequest;
 
-    console.log(currentTranslationRequest);
-
-    const existingTranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+    const TranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
       populate: ['article'],
       filters: {
         $and: [
@@ -136,12 +135,10 @@ export default {
           },
         ],
       },
-    }) as ExistingTranslationRequest[];
-
-    console.log(existingTranslationRequests)
+    }) as TranslationRequest[];
 
     // @ts-ignore
-    if (existingTranslationRequests && existingTranslationRequests.length > 0) {
+    if (TranslationRequests && TranslationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
   },
@@ -157,38 +154,19 @@ export default {
       }
     });
 
-    // @ts-ignore
-    const subscriberIds = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.id);
-
-    const subscribedAdministrators = await strapi.query("admin::user").findMany({
-      where: {
-        id: {
-          $in: subscriberIds,
-        },
-      },
-    });
+    const emailAddresses = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.email);
 
     if (!result.updatedBy) return
 
     const updater = result.updatedBy;
-    const updaterFirstname = updater.firstname;
-    const updaterLastname = updater.lastname;
-
-    for (let i = 0; i < subscribedAdministrators.length; i++) {
-      const { email } = subscribedAdministrators[i];
-      await strapi.plugins['email'].services.email.send({
-        to: email,
-        from: 'hello@freizeit.hu', //e.g. single sender verification in SendGrid
-        replyTo: 'hello@freizeit.hu',
-        subject: 'EM Guide: Translation request has been updated',
-        html: updatedTranslationRequestEmailTemplate(
-          {
-            // @ts-ignore
-            articleTitle: translationRequestWithArticles.article.title,
-            updatedByName: `${updaterFirstname} ${updaterLastname}`,
-            link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${event.result.id}`
-          })
-      })
-    }
+  
+    await sendEmails(
+      emailAddresses,
+      updatedTranslationRequestEmailTemplate,
+      'EM Guide: Translation request has been updated',
+      translationRequestWithArticles.article,
+      result,
+      updater
+    );
   }
 };

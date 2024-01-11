@@ -48,6 +48,7 @@
   "devDependencies": {
     "@types/mjml": "^4.7.4",
     "@types/mjml-core": "^4.7.4",
+    "@types/react": "^18.2.47",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.34"
   }

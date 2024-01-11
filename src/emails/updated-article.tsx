@@ -15,20 +15,20 @@ import {
 
 interface UpdatedArticleEmailTemplateProps {
   articleTitle: string;
-  updatedByName: string;
+  name: string;
   link: string;
 }
 
 export const updatedArticleEmailTemplate = ({
   articleTitle,
-  updatedByName,
+  name,
   link,
 }: UpdatedArticleEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
         <MjmlTitle>EM Guide | Article updated</MjmlTitle>
-        <MjmlPreview>{updatedByName} has updated an article you have subscribed to...</MjmlPreview>
+        <MjmlPreview>{name} has updated an article you have subscribed to...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
@@ -51,7 +51,7 @@ export const updatedArticleEmailTemplate = ({
           color="#4A4A6A"
           font-family="sans-serif"
         >
-          {updatedByName} has updated an article: {articleTitle}. You can
+          {name} has updated an article: {articleTitle}. You can
           view it by clicking the link below.
         </MjmlText>
         <MjmlWrapper padding="16px 0" fullWidth textAlign="center">

@@ -2,31 +2,70 @@ import { createArticleEmailTemplate } from "../../../../emails/create-article";
 import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
 import { env } from '@strapi/utils';
 
+const sendEmails = async (
+  recipients: string[],
+  template: ({ articleTitle, name, language, link }: {
+    articleTitle: string;
+    name: string;
+    language?: string,
+    link: string;
+  }) => string,
+  title: string,
+  article: {
+    id: number;
+    title: string;
+  },
+  creatorOrUpdater: {
+    id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+  }) => {
+  const promises = recipients.map(async (recipient) => {
+    await strapi.plugins['email'].services.email.send({
+      to: recipient,
+      from: 'hello@freizeit.hu',
+      replyTo: 'hello@freizeit.hu',
+      subject: title,
+      html: template({
+        articleTitle: article.title,
+        name: `${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}`,
+        link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${article.id}`
+      })
+    });
+  });
+  await Promise.all(promises);
+};
+
 export default {
   async afterCreate(event) {
     const { result } = event;
     const administrators = await strapi.query("admin::user").findMany();
     const emailsAddresses = administrators.map((admin) => admin.email);
     const creator = administrators.find((admin) => admin.id === result.createdBy.id);
-    const creatorFirstname = creator.firstname;
-    const creatorLastname = creator.lastname;
 
-    for (let i = 0; i < emailsAddresses.length; i++) {
-      const emailAddress = emailsAddresses[i];
-      await strapi.plugins['email'].services.email.send({
-        to: emailAddress,
-        from: 'hello@freizeit.hu', //e.g. single sender verification in SendGrid
-        replyTo: 'hello@freizeit.hu',
-        subject: 'EM Guide: New article has been created',
-        html: createArticleEmailTemplate(
-          {
-            articleTitle: result.title,
-            createdByName: `${creatorFirstname} ${creatorLastname}`,
-            link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${result.id}`
-          })
-      })
-    }
+    await sendEmails(
+      emailsAddresses,
+      createArticleEmailTemplate,
+      'EM Guide: New article has been created',
+      result,
+      creator
+    );
   },
+
+  // async beforeUpdate(event) {
+  //   console.log(event.params.data.comments)
+
+  //   const article = await strapi.entityService.findOne("api::article.article", event.params.data.id, {
+  //     populate: {
+  //       comments: {
+  //         populate: ["admin_user"]
+  //       }
+  //     }
+  //   })
+
+  //   console.dir(article.comments, { depth: null });
+  // },
 
   async afterUpdate(event) {
     const { result } = event;
@@ -48,27 +87,19 @@ export default {
       },
     });
 
-    if(!result.updatedBy) return
+    const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
+
+    if (!result.updatedBy) return;
 
     const updater = result.updatedBy;
-    const updaterFirstname = updater.firstname;
-    const updaterLastname = updater.lastname;
 
-    for (let i = 0; i < subscribedAdministrators.length; i++) {
-      const { email } = subscribedAdministrators[i];
-      await strapi.plugins['email'].services.email.send({
-        to: email,
-        from: 'hello@freizeit.hu', //e.g. single sender verification in SendGrid
-        replyTo: 'hello@freizeit.hu',
-        subject: 'EM Guide: Article has been updated',
-        html: updatedArticleEmailTemplate(
-          {
-            articleTitle: event.result.title,
-            updatedByName: `${updaterFirstname} ${updaterLastname}`,
-            link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${event.result.id}`
-          })
-      })
-    }
+    await sendEmails(
+      emailAddresses,
+      updatedArticleEmailTemplate,
+      'EM Guide: Article has been updated',
+      result,
+      updater
+    );
   }
 
 };

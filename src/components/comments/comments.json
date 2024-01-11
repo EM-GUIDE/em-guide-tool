@@ -15,6 +15,9 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "admin::user"
+    },
+    "name": {
+      "type": "string"
     }
   }
 }

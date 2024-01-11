@@ -16,21 +16,21 @@ import {
 interface CreateTranslationRequestEmailTemplateProps {
   articleTitle: string;
   language: string;
-  createdByName: string;
+  name: string;
   link: string;
 }
 
 export const createTranslationRequestEmailTemplate = ({
   articleTitle,
+  name,
   language,
-  createdByName,
   link,
 }: CreateTranslationRequestEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
         <MjmlTitle>EM Guide | New translation request created</MjmlTitle>
-        <MjmlPreview>{createdByName} has created a new translation request...</MjmlPreview>
+        <MjmlPreview>{name} has created a new translation request...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
@@ -53,7 +53,7 @@ export const createTranslationRequestEmailTemplate = ({
           color="#4A4A6A"
           font-family="sans-serif"
         >
-          {createdByName} has created a new {language} language translation request for the article {articleTitle}. You can
+          {name} has created a new {language} language translation request for the article {articleTitle}. You can
           view it by clicking the link below.
         </MjmlText>
         <MjmlWrapper padding="16px 0" fullWidth textAlign="center">

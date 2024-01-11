@@ -15,20 +15,22 @@ import {
 
 interface UpdatedTranslationRequestEmailTemplateProps {
   articleTitle: string;
-  updatedByName: string;
+  name: string;
+  language: string;
   link: string;
 }
 
 export const updatedTranslationRequestEmailTemplate = ({
   articleTitle,
-  updatedByName,
+  name,
+  language,
   link,
 }: UpdatedTranslationRequestEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
         <MjmlTitle>EM Guide | Translation request updated</MjmlTitle>
-        <MjmlPreview>{updatedByName} has updated an translation request you have subscribed to...</MjmlPreview>
+        <MjmlPreview>{name} has updated an translation request you have subscribed to...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
@@ -51,7 +53,7 @@ export const updatedTranslationRequestEmailTemplate = ({
           color="#4A4A6A"
           font-family="sans-serif"
         >
-          {updatedByName} has updated a translation request: {articleTitle}. You can
+          {name} has updated the {language} language translation request for {articleTitle}. You can
           view it by clicking the link below.
         </MjmlText>
         <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
