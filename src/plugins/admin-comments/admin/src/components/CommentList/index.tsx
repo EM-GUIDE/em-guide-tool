@@ -4,17 +4,14 @@ import {
   Box,
   Button,
   Divider,
-  Information,
   Flex,
   Loader,
   ModalLayout,
   ModalBody,
   ModalHeader,
-  ModalFooter,
   Textarea,
   Tooltip,
   Typography,
-  Stack,
 } from "@strapi/design-system";
 import styled from "styled-components";
 import { useComment } from "../../hooks/useComment";
@@ -46,6 +43,7 @@ export const CommentList = () => {
   const [comments, setComments] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [content, setContent] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
   const user = auth.get("userInfo");
 
   if (isCreatingEntry || slug !== "api::article.article") {
@@ -84,6 +82,9 @@ export const CommentList = () => {
   }, [isLoading, isRefetching]);
 
   const handleCommentCreate = async () => {
+    if(content === "") return;
+    setIsCreating(true);
+    
     const response = await createComment({
       comment: content,
       entityId: entity.id,
@@ -93,7 +94,13 @@ export const CommentList = () => {
       },
     });
 
-    if (response.status && response.status === 200) setContent("");
+
+    if (response.status && response.status === 200) {
+      setIsCreating(false);
+      setContent("");
+    } else {
+      setIsCreating(false);
+    }
   };
 
   const lastComment = comments[comments.length - 1];
@@ -185,8 +192,8 @@ export const CommentList = () => {
                 >
                   {content}
                 </Textarea>
-                <Button marginTop={2} onClick={() => handleCommentCreate()}>
-                  Add comment
+                <Button marginTop={2} onClick={() => handleCommentCreate()} disabled={ isCreating }>
+                { isCreating ? <Loader small >Creating comment...</Loader> : 'Add comment' }  
                 </Button>
               </Box>
             </Box>

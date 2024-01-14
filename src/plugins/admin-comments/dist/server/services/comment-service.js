@@ -1,14 +1,44 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("@strapi/utils");
+const comment_added_1 = require("../emails/comment-added");
+const sendEmails = async (recipients, template, title, article, creatorOrUpdater) => {
+    const promises = recipients.map(async (recipient) => {
+        await strapi.plugins['email'].services.email.send({
+            to: recipient,
+            from: 'hello@freizeit.hu',
+            replyTo: 'hello@freizeit.hu',
+            subject: title,
+            html: template({
+                articleTitle: article.title,
+                name: `${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}`,
+                link: `${(0, utils_1.env)('URL')}admin/content-manager/collectionType/api::article.article/${article.id}`
+            })
+        });
+    });
+    await Promise.all(promises);
+};
 exports.default = ({ strapi }) => ({
     async find(query) {
         var _a;
         strapi;
         return await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.findMany('plugin::admin-comments.comment', query));
     },
-    async create(data) {
-        var _a;
-        console.log(data);
-        return await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.create('plugin::admin-comments.comment', data));
+    async create(request) {
+        var _a, _b;
+        const commenterId = request.data.admin_user.connect[0];
+        const article = await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.findOne("api::article.article", request.data.entityId, {
+            populate: ["subscribers"],
+        }));
+        // @ts-ignore
+        const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+        const administrators = await strapi.query("admin::user").findMany();
+        const commenter = administrators.find((admin) => admin.id === commenterId);
+        const subscribedAdministrators = administrators.filter((admin) => subscriberIds.includes(admin.id));
+        const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
+        await sendEmails(emailAddresses, comment_added_1.commentAddedEmailTemplate, 'EM Guide: Comment added', 
+        // @ts-ignore
+        article, commenter);
+        return await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.create('plugin::admin-comments.comment', request));
     }
 });

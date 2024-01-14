@@ -65,20 +65,6 @@ export const CommentItem = ({ comment, setActiveComment, toggleModal }) => {
             {comment.comment}
           </Typography>
         </Flex>
-        {/* <IconButtonGroup>
-          <IconButton
-            style={{ border: "none" }}
-            onClick={() => openCommentModel(comment)}
-            label="Edit"
-            icon={<Pencil />}
-          />
-          <IconButton
-            style={{ border: "none" }}
-            onClick={() => handleCommentDelete(comment)}
-            label="Delete"
-            icon={<Trash />}
-          />
-        </IconButtonGroup> */}
       </Flex>
     </Box>
   );
