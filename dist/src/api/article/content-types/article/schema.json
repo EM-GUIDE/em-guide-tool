@@ -77,17 +77,6 @@
             "target": "api::translation-request.translation-request",
             "mappedBy": "article"
         },
-        "comments": {
-            "displayName": "comments",
-            "type": "component",
-            "repeatable": true,
-            "pluginOptions": {
-                "i18n": {
-                    "localized": false
-                }
-            },
-            "component": "comments.comments"
-        },
         "authors": {
             "type": "relation",
             "relation": "manyToMany",

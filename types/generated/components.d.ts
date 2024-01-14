@@ -15,6 +15,7 @@ export interface CommentsComments extends Schema.Component {
       'admin::user'
     >;
     name: Attribute.String;
+    admin_id: Attribute.Integer;
   };
 }
 

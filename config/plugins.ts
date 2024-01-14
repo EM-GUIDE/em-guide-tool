@@ -15,5 +15,9 @@ export default ({ env }) => ({
   'admin-email-notifications': {
     enabled: true,
     resolve: './src/plugins/admin-email-notifications'
+  },
+  'admin-comments': {
+    enabled: true,
+    resolve: './src/plugins/admin-comments'
   }
 });

@@ -53,20 +53,6 @@ export default {
     );
   },
 
-  // async beforeUpdate(event) {
-  //   console.log(event.params.data.comments)
-
-  //   const article = await strapi.entityService.findOne("api::article.article", event.params.data.id, {
-  //     populate: {
-  //       comments: {
-  //         populate: ["admin_user"]
-  //       }
-  //     }
-  //   })
-
-  //   console.dir(article.comments, { depth: null });
-  // },
-
   async afterUpdate(event) {
     const { result } = event;
     const { where } = event.params;

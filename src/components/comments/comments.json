@@ -18,6 +18,10 @@
     },
     "name": {
       "type": "string"
+    },
+    "admin_id": {
+      "type": "integer",
+      "required": false
     }
   }
 }

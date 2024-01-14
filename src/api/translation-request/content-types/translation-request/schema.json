@@ -4,7 +4,7 @@
   "info": {
     "singularName": "translation-request",
     "pluralName": "translation-requests",
-    "displayName": "TranslationRequest",
+    "displayName": "Translation Request",
     "description": ""
   },
   "options": {
