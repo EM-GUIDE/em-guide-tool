@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const create_article_1 = require("../../../../emails/create-article");
-const updated_article_1 = require("../../../../emails/updated-article");
 const utils_1 = require("@strapi/utils");
 const sendEmails = async (recipients, template, title, article, creatorOrUpdater) => {
     const promises = recipients.map(async (recipient) => {
@@ -27,26 +26,32 @@ exports.default = {
         const creator = administrators.find((admin) => admin.id === result.createdBy.id);
         await sendEmails(emailsAddresses, create_article_1.createArticleEmailTemplate, 'EM Guide: New article has been created', result, creator);
     },
-    async afterUpdate(event) {
-        const { result } = event;
-        const { where } = event.params;
-        const id = where.id;
-        const article = await strapi.entityService.findOne("api::article.article", id, {
-            populate: ["subscribers"],
-        });
-        // @ts-ignore
-        const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
-        const subscribedAdministrators = await strapi.query("admin::user").findMany({
-            where: {
-                id: {
-                    $in: subscriberIds,
-                },
-            },
-        });
-        const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
-        if (!result.updatedBy)
-            return;
-        const updater = result.updatedBy;
-        await sendEmails(emailAddresses, updated_article_1.updatedArticleEmailTemplate, 'EM Guide: Article has been updated', result, updater);
-    }
+    // // Comment out to enable email notifications on article updates
+    // async afterUpdate(event) {
+    //   const { result } = event;
+    //   const { where } = event.params;
+    //   const id = where.id;
+    //   const article = await strapi.entityService.findOne("api::article.article", id, {
+    //     populate: ["subscribers"],
+    //   })
+    //   // @ts-ignore
+    //   const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+    //   const subscribedAdministrators = await strapi.query("admin::user").findMany({
+    //     where: {
+    //       id: {
+    //         $in: subscriberIds,
+    //       },
+    //     },
+    //   });
+    //   const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
+    //   if (!result.updatedBy) return;
+    //   const updater = result.updatedBy;
+    //   await sendEmails(
+    //     emailAddresses,
+    //     updatedArticleEmailTemplate,
+    //     'EM Guide: Article has been updated',
+    //     result,
+    //     updater
+    //   );
+    // }
 };

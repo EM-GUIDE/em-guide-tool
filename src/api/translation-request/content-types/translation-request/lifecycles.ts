@@ -98,11 +98,11 @@ export default {
     if (!connectedArticle) {
       throw new ValidationError('Article not found');
     }
-  
+
     const creator = result.createdBy;
-  
+
     const emailAddresses = connectedArticle.subscribers.map((subscriber) => subscriber.email);
-  
+
     await sendEmails(
       emailAddresses,
       createTranslationRequestEmailTemplate,
@@ -115,31 +115,34 @@ export default {
 
   async beforeUpdate(event) {
     const { data } = event.params;
+    console.log(data.article)
 
     const currentTranslationRequest = await strapi.entityService.findOne('api::translation-request.translation-request', data.id, {
       populate: ['article'],
     }) as TranslationRequest;
 
-    const TranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
-      populate: ['article'],
-      filters: {
-        $and: [
-          {
-            // @ts-ignore
-            language: data.language
-          },
-          {
-            article: {
-              id: currentTranslationRequest.article.id
-            }
-          },
-        ],
-      },
-    }) as TranslationRequest[];
+    if (currentTranslationRequest.language !== data.language) {
+      const translationRequestsWithSameArticleAndLanguage = await strapi.entityService.findMany('api::translation-request.translation-request', {
+        populate: ['article'],
+        filters: {
+          $and: [
+            {
+              // @ts-ignore
+              language: data.language
+            },
+            {
+              article: {
+                id: currentTranslationRequest.article.id
+              }
+            },
+          ],
+        },
+      }) as TranslationRequest[];
 
-    // @ts-ignore
-    if (TranslationRequests && TranslationRequests.length > 0) {
-      throw new ValidationError('A translation request for this article in this language already exists.');
+      // @ts-ignore
+      if (translationRequestsWithSameArticleAndLanguage && translationRequestsWithSameArticleAndLanguage.length > 0) {
+        throw new ValidationError('A translation request for this article in this language already exists.');
+      }
     }
   },
 
@@ -159,7 +162,7 @@ export default {
     if (!result.updatedBy) return
 
     const updater = result.updatedBy;
-  
+
     await sendEmails(
       emailAddresses,
       updatedTranslationRequestEmailTemplate,

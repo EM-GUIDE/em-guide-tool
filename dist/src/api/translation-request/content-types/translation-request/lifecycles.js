@@ -59,28 +59,31 @@ exports.default = {
     },
     async beforeUpdate(event) {
         const { data } = event.params;
+        console.log(data.article);
         const currentTranslationRequest = await strapi.entityService.findOne('api::translation-request.translation-request', data.id, {
             populate: ['article'],
         });
-        const TranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
-            populate: ['article'],
-            filters: {
-                $and: [
-                    {
-                        // @ts-ignore
-                        language: data.language
-                    },
-                    {
-                        article: {
-                            id: currentTranslationRequest.article.id
-                        }
-                    },
-                ],
-            },
-        });
-        // @ts-ignore
-        if (TranslationRequests && TranslationRequests.length > 0) {
-            throw new ValidationError('A translation request for this article in this language already exists.');
+        if (currentTranslationRequest.language !== data.language) {
+            const translationRequestsWithSameArticleAndLanguage = await strapi.entityService.findMany('api::translation-request.translation-request', {
+                populate: ['article'],
+                filters: {
+                    $and: [
+                        {
+                            // @ts-ignore
+                            language: data.language
+                        },
+                        {
+                            article: {
+                                id: currentTranslationRequest.article.id
+                            }
+                        },
+                    ],
+                },
+            });
+            // @ts-ignore
+            if (translationRequestsWithSameArticleAndLanguage && translationRequestsWithSameArticleAndLanguage.length > 0) {
+                throw new ValidationError('A translation request for this article in this language already exists.');
+            }
         }
     },
     async afterUpdate(event) {

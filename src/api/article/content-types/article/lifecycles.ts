@@ -53,39 +53,40 @@ export default {
     );
   },
 
-  async afterUpdate(event) {
-    const { result } = event;
-    const { where } = event.params;
-    const id = where.id;
+  // // Comment out to enable email notifications on article updates
+  // async afterUpdate(event) {
+  //   const { result } = event;
+  //   const { where } = event.params;
+  //   const id = where.id;
 
-    const article = await strapi.entityService.findOne("api::article.article", id, {
-      populate: ["subscribers"],
-    })
+  //   const article = await strapi.entityService.findOne("api::article.article", id, {
+  //     populate: ["subscribers"],
+  //   })
 
-    // @ts-ignore
-    const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+  //   // @ts-ignore
+  //   const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
 
-    const subscribedAdministrators = await strapi.query("admin::user").findMany({
-      where: {
-        id: {
-          $in: subscriberIds,
-        },
-      },
-    });
+  //   const subscribedAdministrators = await strapi.query("admin::user").findMany({
+  //     where: {
+  //       id: {
+  //         $in: subscriberIds,
+  //       },
+  //     },
+  //   });
 
-    const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
+  //   const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
 
-    if (!result.updatedBy) return;
+  //   if (!result.updatedBy) return;
 
-    const updater = result.updatedBy;
+  //   const updater = result.updatedBy;
 
-    await sendEmails(
-      emailAddresses,
-      updatedArticleEmailTemplate,
-      'EM Guide: Article has been updated',
-      result,
-      updater
-    );
-  }
+  //   await sendEmails(
+  //     emailAddresses,
+  //     updatedArticleEmailTemplate,
+  //     'EM Guide: Article has been updated',
+  //     result,
+  //     updater
+  //   );
+  // }
 
 };
