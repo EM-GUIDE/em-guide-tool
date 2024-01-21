@@ -1,5 +1,5 @@
 import { createArticleEmailTemplate } from "../../../../emails/create-article";
-import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
+// import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
 import { env } from '@strapi/utils';
 
 const sendEmails = async (

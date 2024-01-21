@@ -17,6 +17,7 @@ import styled from "styled-components";
 import { useComment } from "../../hooks/useComment";
 import { CommentItem } from "../CommentItem";
 import { format } from "date-fns";
+import { type Comment } from "../../hooks/useComment";
 
 const Container = styled.div`
   padding-top: 24px;
@@ -38,9 +39,7 @@ const ModalWrapper = styled.div`
 export const CommentList = () => {
   const { isCreatingEntry, modifiedData, slug } = useCMEditViewDataManager();
   const { getComments, createComment } = useComment();
-  const [isCommentsModalVisible, setIsCommentsModalVisible] = useState(false);
-  const [activeComment, setActiveComment] = useState({});
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [content, setContent] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -84,15 +83,17 @@ export const CommentList = () => {
   const handleCommentCreate = async () => {
     if(content === "") return;
     setIsCreating(true);
-    
-    const response = await createComment({
+
+    const params = {
       comment: content,
       entityId: entity.id,
       entitySlug: entity.slug,
       admin_user: {
         connect: [user.id],
       },
-    });
+   };
+    
+   const response = await createComment(params);
 
 
     if (response.status && response.status === 200) {
@@ -162,8 +163,6 @@ export const CommentList = () => {
                   <CommentItem
                     key={comment.id}
                     comment={comment}
-                    setActiveComment={setActiveComment}
-                    toggleModal={setIsCommentsModalVisible}
                   />
                 ))}
               </Flex>
@@ -173,7 +172,7 @@ export const CommentList = () => {
                   label="New comment"
                   name="content"
                   hint=""
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContent(e.target.value)}
                   labelAction={
                     <Tooltip
                       description="Content of the tooltip"

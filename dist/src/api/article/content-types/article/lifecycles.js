@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const create_article_1 = require("../../../../emails/create-article");
+// import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
 const utils_1 = require("@strapi/utils");
 const sendEmails = async (recipients, template, title, article, creatorOrUpdater) => {
     const promises = recipients.map(async (recipient) => {

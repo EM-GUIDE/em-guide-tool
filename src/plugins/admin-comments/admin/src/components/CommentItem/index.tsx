@@ -1,30 +1,17 @@
 import {
   Box,
   Typography,
-  IconButton,
-  IconButtonGroup,
   Flex,
 } from "@strapi/design-system";
-import { Trash, Pencil } from "@strapi/icons";
-import { useComment } from "../../hooks/useComment";
-import styled from "styled-components";
 import { format } from "date-fns";
 
-const CommentContent = styled.div`
-  color: #fff;
-`;
+import type { Comment } from "../../hooks/useComment";
 
-export const CommentItem = ({ comment, setActiveComment, toggleModal }) => {
-  const { deleteComment } = useComment();
-
-  const openCommentModel = () => {
-    setActiveComment({ ...comment });
-    toggleModal(true);
-  };
-
-  const handleCommentDelete = (comment) => {
-    deleteComment({ id: comment.id });
-  };
+export const CommentItem = ({
+  comment
+}: {
+  comment: Comment ;
+}) => {
 
   return (
     <Box
@@ -41,7 +28,12 @@ export const CommentItem = ({ comment, setActiveComment, toggleModal }) => {
     >
       <Flex gap={2} justifyContent={"space-between"}>
         <Flex gap={2} direction={"column"} alignItems={"flex-start"}>
-          <Flex direction="column" gap={1} alignItems={"flex-start"} width="100%">
+          <Flex
+            direction="column"
+            gap={1}
+            alignItems={"flex-start"}
+            width="100%"
+          >
             <Typography
               variant="omega"
               textColor="neutral800"
