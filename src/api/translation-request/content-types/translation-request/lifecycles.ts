@@ -167,7 +167,10 @@ export default {
       emailAddresses,
       updatedTranslationRequestEmailTemplate,
       'EM Guide: Translation request has been updated',
-      translationRequestWithArticles.article,
+      {
+        id: Number(translationRequestWithArticles.article.id),
+        title: translationRequestWithArticles.article.title
+      },
       result,
       updater
     );

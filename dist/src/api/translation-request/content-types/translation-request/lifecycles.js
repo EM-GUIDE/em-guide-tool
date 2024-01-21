@@ -99,6 +99,9 @@ exports.default = {
         if (!result.updatedBy)
             return;
         const updater = result.updatedBy;
-        await sendEmails(emailAddresses, updated_translation_request_1.updatedTranslationRequestEmailTemplate, 'EM Guide: Translation request has been updated', translationRequestWithArticles.article, result, updater);
+        await sendEmails(emailAddresses, updated_translation_request_1.updatedTranslationRequestEmailTemplate, 'EM Guide: Translation request has been updated', {
+            id: Number(translationRequestWithArticles.article.id),
+            title: translationRequestWithArticles.article.title
+        }, result, updater);
     }
 };
