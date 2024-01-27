@@ -18,7 +18,7 @@ const sendEmails = async (
   creatorOrUpdater: {
     id: number;
     firstname: string;
-    lastname: string;
+    lastname?: string;
     email: string;
   }) => {
   const promises = recipients.map(async (recipient) => {
@@ -29,7 +29,7 @@ const sendEmails = async (
       subject: title,
       html: template({
         articleTitle: article.title,
-        name: `${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}`,
+        name:  creatorOrUpdater.lastname ?`${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}` : creatorOrUpdater.firstname,
         link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${article.id}`
       })
     });
