@@ -12,15 +12,16 @@ export default ({ strapi }: { strapi: Strapi }) => ({
 
     if(!article) throw new Error('Article not found')
 
-    // @ts-ignore
     const isSubscribed = article.subscribers.some(
       (subscriber) => subscriber.id.toString() === adminId
     );
 
+    console.log('isSubscribed: ', isSubscribed)
+
     if (isSubscribed) {
       await strapi?.entityService?.update('api::article.article', articleId, {
         data: {
-          // @ts-ignore
+          // @ts-expect-error
           subscribers: {
             disconnect: [adminId],
           },
@@ -31,7 +32,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     } else {
       await strapi?.entityService?.update('api::article.article', articleId, {
         data: {
-          // @ts-ignore
+          // @ts-expect-error
           subscribers: {
             connect: [adminId],
           },

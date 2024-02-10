@@ -30,15 +30,15 @@ exports.default = ({ strapi }) => ({
         const article = await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.findOne("api::article.article", request.data.entityId, {
             populate: ["subscribers"],
         }));
-        // @ts-ignore
-        const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+        const subscriberIds = article === null || article === void 0 ? void 0 : article.subscribers.map((subscriber) => subscriber.id);
         const administrators = await strapi.query("admin::user").findMany();
         const commenter = administrators.find((admin) => admin.id === commenterId);
         const subscribedAdministrators = administrators.filter((admin) => subscriberIds.includes(admin.id));
         const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
-        await sendEmails(emailAddresses, comment_added_1.commentAddedEmailTemplate, 'EM Guide: Comment added', 
-        // @ts-ignore
-        article, commenter);
+        if (!article) {
+            throw new Error('Article not found');
+        }
+        await sendEmails(emailAddresses, comment_added_1.commentAddedEmailTemplate, 'EM Guide: Comment added', article, commenter);
         return await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.create('plugin::admin-comments.comment', request));
     }
 });

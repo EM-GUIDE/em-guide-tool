@@ -2,6 +2,12 @@ import { Strapi } from "@strapi/strapi";
 import { env } from "@strapi/utils";
 import { commentAddedEmailTemplate } from "../emails/comment-added";
 
+interface Article {
+  id: number;
+  title: string;
+  subscribers: any[]
+}
+
 const sendEmails = async (
   recipients: string[],
   template: ({ articleTitle, name, link }: {
@@ -46,10 +52,9 @@ export default ({ strapi }: { strapi: Strapi }) => ({
 
     const article = await strapi.entityService?.findOne("api::article.article", request.data.entityId, {
       populate: ["subscribers"],
-    })
+    }) as Article
 
-    // @ts-ignore
-    const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+    const subscriberIds: number[] = article?.subscribers.map((subscriber) => subscriber.id);
 
     const administrators = await strapi.query("admin::user").findMany();
 
@@ -59,11 +64,14 @@ export default ({ strapi }: { strapi: Strapi }) => ({
 
     const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
 
+    if (!article) {
+      throw new Error('Article not found');
+    }
+
     await sendEmails(
       emailAddresses,
       commentAddedEmailTemplate,
       'EM Guide: Comment added',
-      // @ts-ignore
       article,
       commenter
     );

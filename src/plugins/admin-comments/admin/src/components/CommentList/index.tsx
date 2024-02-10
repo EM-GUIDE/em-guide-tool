@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import { useCMEditViewDataManager, auth } from "@strapi/helper-plugin";
 import {
   Box,
@@ -10,7 +10,6 @@ import {
   ModalBody,
   ModalHeader,
   Textarea,
-  Tooltip,
   Typography,
 } from "@strapi/design-system";
 import styled from "styled-components";
@@ -70,15 +69,13 @@ export const CommentList = () => {
   });
 
   // set initial data to state so its reactive
-  useEffect(() => {
-    if (!isLoading && !isRefetching) {
-      if (data.length) {
-        setComments([...data]);
-      } else {
-        setComments([]);
-      }
+  useLayoutEffect(() => {
+    if (!isLoading && !isRefetching && data.length) {
+      setComments([...data]);
+    } else {
+      setComments([]);
     }
-  }, [isLoading, isRefetching]);
+  }, [isLoading, isRefetching, data, isCreatingEntry, slug, id]);
 
   const handleCommentCreate = async () => {
     if(content === "") return;
@@ -173,21 +170,6 @@ export const CommentList = () => {
                   name="content"
                   hint=""
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContent(e.target.value)}
-                  labelAction={
-                    <Tooltip
-                      description="Content of the tooltip"
-                      position="right"
-                    >
-                      <button
-                        aria-label="Information about the email"
-                        style={{
-                          border: "none",
-                          padding: 0,
-                          background: "transparent",
-                        }}
-                      ></button>
-                    </Tooltip>
-                  }
                 >
                   {content}
                 </Textarea>
