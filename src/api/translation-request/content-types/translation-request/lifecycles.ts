@@ -52,7 +52,7 @@ const sendEmails = async (
       html: template({
         articleTitle: article.title,
         language: translationRequest.language,
-        name: creatorOrUpdater.lastname ? `${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}` : creatorOrUpdater.firstname,
+        name: `${creatorOrUpdater.firstname}`,
         link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${article.id}`
       })
     });
@@ -70,7 +70,6 @@ export default {
       filters: {
         $and: [
           {
-            // @ts-ignore
             language: data.language
           },
           {
@@ -82,7 +81,6 @@ export default {
       },
     }) as TranslationRequest[];
 
-    // @ts-ignore
     if (TranslationRequests && TranslationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
@@ -127,7 +125,6 @@ export default {
         filters: {
           $and: [
             {
-              // @ts-ignore
               language: data.language
             },
             {
@@ -139,7 +136,6 @@ export default {
         },
       }) as TranslationRequest[];
 
-      // @ts-ignore
       if (translationRequestsWithSameArticleAndLanguage && translationRequestsWithSameArticleAndLanguage.length > 0) {
         throw new ValidationError('A translation request for this article in this language already exists.');
       }

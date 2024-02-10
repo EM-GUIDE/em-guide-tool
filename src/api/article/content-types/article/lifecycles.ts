@@ -18,7 +18,6 @@ const sendEmails = async (
   creatorOrUpdater: {
     id: number;
     firstname: string;
-    lastname?: string;
     email: string;
   }) => {
   const promises = recipients.map(async (recipient) => {
@@ -29,7 +28,7 @@ const sendEmails = async (
       subject: title,
       html: template({
         articleTitle: article.title,
-        name:  creatorOrUpdater.lastname ?`${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}` : creatorOrUpdater.firstname,
+        name:  `${creatorOrUpdater.firstname}`,
         link: `${env('URL')}admin/content-manager/collectionType/api::article.article/${article.id}`
       })
     });
@@ -63,7 +62,7 @@ export default {
   //     populate: ["subscribers"],
   //   })
 
-  //   // @ts-ignore
+  //   // @ts-expect-error
   //   const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
 
   //   const subscribedAdministrators = await strapi.query("admin::user").findMany({
