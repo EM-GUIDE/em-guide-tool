@@ -29,8 +29,8 @@ const sendEmails = async (
   const promises = recipients.map(async (recipient) => {
     await strapi.plugins['email'].services.email.send({
       to: recipient,
-      from: env('RESEND_EMAIL'),
-      replyTo: env('RESEND_EMAIL'),
+      from: env('SMTP_EMAIL'),
+      replyTo: env('SMTP_EMAIL'),
       subject: title,
       html: template({
         articleTitle: article.title,
