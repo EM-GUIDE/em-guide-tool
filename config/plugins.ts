@@ -10,11 +10,13 @@ export default ({ env }) => ({
           user: env('SMTP_USERNAME'),
           pass: env('SMTP_PASSWORD'),
         },
+        debug: true,
+        logger: true
       },
       settings: {
         defaultFrom: env('SMTP_EMAIL'),
         defaultReplyTo: env('SMTP_EMAIL'),
-      },
+      }
     },
   },
   'admin-email-notifications': {
