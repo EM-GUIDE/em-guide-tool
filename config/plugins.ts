@@ -7,8 +7,8 @@ export default ({ env }) => ({
         apiKey: env('RESEND_API_KEY'),
       },
       settings: {
-        defaultFrom: 'onboarding@resend.dev',
-        defaultReplyTo: 'onboarding@resend.dev',
+        defaultFrom: env('RESEND_EMAIL'),
+        defaultReplyTo: env('RESEND_EMAIL'),
       },
     },
   },
