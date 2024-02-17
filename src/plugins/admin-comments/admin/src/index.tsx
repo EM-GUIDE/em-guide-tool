@@ -1,11 +1,11 @@
-import { prefixPluginTranslations } from '@strapi/helper-plugin';
+import { prefixPluginTranslations } from "@strapi/helper-plugin";
 
-import pluginPkg from '../../package.json';
-import pluginId from './pluginId';
-import Initializer from './components/Initializer';
-import PluginIcon from './components/PluginIcon';
+import pluginPkg from "../../package.json";
+import pluginId from "./pluginId";
+import Initializer from "./components/Initializer";
+import PluginIcon from "./components/PluginIcon";
 
-import { CommentList } from './components/CommentList';
+import { CommentWrapper } from "./components/CommentWrapper";
 
 const name = pluginPkg.strapi.name;
 
@@ -19,7 +19,7 @@ export default {
         defaultMessage: name,
       },
       Component: async () => {
-        const component = await import('./pages/App');
+        const component = await import("./pages/App");
 
         return component;
       },
@@ -42,10 +42,10 @@ export default {
   },
 
   bootstrap(app: any) {
-    app.injectContentManagerComponent('editView', 'informations', {
-			name: 'comment-list',
-			Component: CommentList,
-		});
+    app.injectContentManagerComponent("editView", "informations", {
+      name: "comment-wrapper",
+      Component: CommentWrapper,
+    });
   },
 
   async registerTrads(app: any) {

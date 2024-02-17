@@ -3,36 +3,36 @@ import { useFetchClient, useNotification } from '@strapi/helper-plugin';
 import pluginId from '../pluginId';
 
 export interface Comment {
-	id: number;
-	comment: string;
-	entityId: number;
-	entitySlug: string;
-	admin_user: {
-		id: number;
-		firstname: string;
-		lastname: string;
-	};
-	createdAt: string;
-	updatedAt: string;
+  id: number;
+  comment: string;
+  entityId: number;
+  entitySlug: string;
+  admin_user: {
+    id: number;
+    firstname: string;
+    lastname: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCommentParams {
-	comment: string;
-	entityId: string;
-	entitySlug: string;
-	admin_user: {
-		connect: string[];
-	};
+  comment: string;
+  entityId: string;
+  entitySlug: string;
+  admin_user: {
+    connect: string[];
+  };
 }
 
 const buildQueryKey = (args: string[]): QueryKey => {
-	return args.filter((a) => a);
+  return args.filter((a) => a);
 };
 
 export const useComment = () => {
-	const toggleNotification = useNotification();
-	const { del, post, put, get } = useFetchClient();
-	const queryClient = useQueryClient();
+  const toggleNotification = useNotification();
+  const { del, post, put, get } = useFetchClient();
+  const queryClient = useQueryClient();
 
   const onSuccessHandler = ({ queryKey, notification }: { queryKey: QueryKey, notification: { type: string, message: string } }): void => {
     queryClient.invalidateQueries(queryKey);

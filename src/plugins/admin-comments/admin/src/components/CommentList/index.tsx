@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useCMEditViewDataManager, auth } from "@strapi/helper-plugin";
 import {
   Box,
@@ -30,28 +30,13 @@ const Label = styled.span`
   color: rgb(165, 165, 186);
 `;
 
-const ModalWrapper = styled.div`
-& > div:first-child {
-  z-index: 1000;
-}`
-
-export const CommentList = () => {
-  const { isCreatingEntry, modifiedData, slug } = useCMEditViewDataManager();
+export const CommentList = ({ id, slug }: { id: string; slug: string }) => {
   const { getComments, createComment } = useComment();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [content, setContent] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const user = auth.get("userInfo");
-
-  if (isCreatingEntry || slug !== "api::article.article") {
-    return null;
-  }
-
-  const id = modifiedData.id || false;
-  if (!id) {
-    return null;
-  }
 
   const entity = { id, slug };
 
@@ -69,16 +54,16 @@ export const CommentList = () => {
   });
 
   // set initial data to state so its reactive
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!isLoading && !isRefetching && data.length) {
       setComments([...data]);
     } else {
       setComments([]);
     }
-  }, [isLoading, isRefetching, data, isCreatingEntry, slug, id]);
+  }, [isLoading, isRefetching, data]);
 
   const handleCommentCreate = async () => {
-    if(content === "") return;
+    if (content === "") return;
     setIsCreating(true);
 
     const params = {
@@ -88,10 +73,9 @@ export const CommentList = () => {
       admin_user: {
         connect: [user.id],
       },
-   };
-    
-   const response = await createComment(params);
+    };
 
+    const response = await createComment(params);
 
     if (response.status && response.status === 200) {
       setIsCreating(false);
@@ -130,7 +114,7 @@ export const CommentList = () => {
                 Posted by:
               </Typography>
               <Typography variant="pi" as="span">
-              {`${lastComment.admin_user.firstname} ${lastComment.admin_user.lastname}`}
+                {`${lastComment.admin_user.firstname} ${lastComment.admin_user.lastname}`}
               </Typography>
             </Flex>
           </Flex>
@@ -139,7 +123,7 @@ export const CommentList = () => {
       <Button onClick={() => setIsModalVisible(true)}>Open Comments</Button>
       {isModalVisible && (
         <ModalLayout
-        style={{color: "red"}}
+          style={{ color: "red" }}
           onClose={() => setIsModalVisible((prev) => !prev)}
           labelledBy="title"
         >
@@ -157,10 +141,7 @@ export const CommentList = () => {
             <Box padding={[4, 2]} background="neutral100">
               <Flex gap={4} direction="column">
                 {comments.map((comment) => (
-                  <CommentItem
-                    key={comment.id}
-                    comment={comment}
-                  />
+                  <CommentItem key={comment.id} comment={comment} />
                 ))}
               </Flex>
               <Box marginTop={6}>
@@ -169,12 +150,22 @@ export const CommentList = () => {
                   label="New comment"
                   name="content"
                   hint=""
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContent(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setContent(e.target.value)
+                  }
                 >
                   {content}
                 </Textarea>
-                <Button marginTop={2} onClick={() => handleCommentCreate()} disabled={ isCreating }>
-                { isCreating ? <Loader small >Creating comment...</Loader> : 'Add comment' }  
+                <Button
+                  marginTop={2}
+                  onClick={() => handleCommentCreate()}
+                  disabled={isCreating}
+                >
+                  {isCreating ? (
+                    <Loader small>Creating comment...</Loader>
+                  ) : (
+                    "Add comment"
+                  )}
                 </Button>
               </Box>
             </Box>
