@@ -9464,10 +9464,10 @@ statuses@2.0.1, statuses@^2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==
 
-strapi-plugin-paper-trail@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-paper-trail/-/strapi-plugin-paper-trail-0.5.0.tgz#b49f268f7bc214cc4351b35848eded07ae3c4111"
-  integrity sha512-kmhU8oErZ9NziOi/0PAZQHhli0zLv9JNRQCJdSnIfShqJ0QwRUQ2gcyhQ+RYP7faDrbcruyV0pt1cKoU6Rj8XA==
+strapi-plugin-paper-trail@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-paper-trail/-/strapi-plugin-paper-trail-0.6.0.tgz#a7b5c4dd507224200ea1c8bbe9c79662d2e013df"
+  integrity sha512-CxXmGk5eYqh5kDfTgCfHgfG2Gc0/1ZXuoDarzskFY9ADliP6QzxVghXs+xTOXEhHKGSJt9mkf6t6Cq67jAfxtg==
   dependencies:
     "@strapi/design-system" "^1.6.3"
     "@strapi/helper-plugin" "^4.16.2"

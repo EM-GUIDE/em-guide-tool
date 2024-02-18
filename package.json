@@ -32,7 +32,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "5.3.4",
-    "strapi-plugin-paper-trail": "^0.5.0",
+    "strapi-plugin-paper-trail": "^0.6.0",
     "strapi-plugin-populate-deep": "^3.0.1",
     "styled-components": "5.3.3"
   },
