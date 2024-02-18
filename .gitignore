@@ -66,6 +66,7 @@ $RECYCLE.BIN/
 ############################
 
 .tmp
+data
 *.log
 *.sql
 *.sqlite
@@ -73,7 +74,7 @@ $RECYCLE.BIN/
 
 
 ############################
-# Misc.
+# Misc. 
 ############################
 
 *#
@@ -113,3 +114,13 @@ exports
 .cache
 build
 dist
+
+src/plugins/admin-comments/dist
+src/plugins/admin-email-notifications/dist
+
+
+############################
+# nginx
+############################
+
+nginx/*.conf
