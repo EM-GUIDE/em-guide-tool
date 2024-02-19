@@ -1,0 +1,27 @@
+{
+    "collectionName": "components_comments_comments",
+    "info": {
+        "displayName": "comments",
+        "icon": "message",
+        "description": ""
+    },
+    "options": {},
+    "attributes": {
+        "comment": {
+            "type": "blocks",
+            "required": true
+        },
+        "admin_user": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "admin::user"
+        },
+        "name": {
+            "type": "string"
+        },
+        "admin_id": {
+            "type": "integer",
+            "required": false
+        }
+    }
+}
