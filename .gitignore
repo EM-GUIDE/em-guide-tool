@@ -115,10 +115,6 @@ exports
 build
 dist
 
-src/plugins/admin-comments/dist
-src/plugins/admin-email-notifications/dist
-
-
 ############################
 # nginx
 ############################
