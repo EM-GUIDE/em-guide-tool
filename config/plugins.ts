@@ -10,14 +10,14 @@ export default ({ env }) => ({
           user: env('SMTP_USERNAME'),
           pass: env('SMTP_PASSWORD'),
         },
-        debug: true,
-        logger: true
+        // debug: true,
+        // logger: true
       },
       settings: {
         defaultFrom: env('SMTP_EMAIL'),
         defaultReplyTo: env('SMTP_EMAIL'),
       }
-    },
+    }
   },
   'admin-email-notifications': {
     enabled: true,
@@ -26,5 +26,10 @@ export default ({ env }) => ({
   'admin-comments': {
     enabled: true,
     resolve: './src/plugins/admin-comments'
+  },
+  'strapi-plugin-populate-deep': {
+    config: {
+      defaultDepth: 10
+    }
   }
 });

@@ -4,11 +4,19 @@ import { errors, env } from '@strapi/utils';
 
 const { ValidationError } = errors;
 
+interface Language {
+  id: number,
+  name: string,
+  code: string
+  createdAt: string,
+  updatedAt: string,
+}
+
 interface TranslationRequest {
   id: number,
   createdAt: string,
   updatedAt: string,
-  language: string,
+  language: Language,
   status: string,
   article?: {
     id: number,
@@ -51,13 +59,15 @@ const sendEmails = async (
       subject: title,
       html: template({
         articleTitle: article.title,
-        language: translationRequest.language,
+        language: translationRequest.language.name,
         name: `${creatorOrUpdater.firstname}`,
         link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${article.id}`
       })
     });
   });
   await Promise.all(promises);
+
+  console.log('Emails sent');
 };
 
 
@@ -65,12 +75,22 @@ export default {
   async beforeCreate(event) {
     const { data } = event.params;
 
-    const TranslationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+    if (data.article.connect.length === 0) {
+      throw new ValidationError('Article is required to create a translation request');
+    }
+
+    if (data.language.connect.length === 0) {
+      throw new ValidationError('Language is required to create a translation request');
+    }
+
+    const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
       populate: ['article'],
       filters: {
         $and: [
           {
-            language: data.language
+            language: {
+              id: data.language.connect[0].id
+            }
           },
           {
             article: {
@@ -81,7 +101,7 @@ export default {
       },
     }) as TranslationRequest[];
 
-    if (TranslationRequests && TranslationRequests.length > 0) {
+    if (translationRequests && translationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
   },
@@ -90,7 +110,7 @@ export default {
     const { result, params } = event;
 
     const connectedArticle = await strapi.entityService.findOne('api::article.article', params.data.article.connect[0].id, {
-      populate: ["subscribers"]
+      populate: ["subscribers", "language"]
     }) as any;
 
     if (!connectedArticle) {
@@ -113,23 +133,34 @@ export default {
 
   async beforeUpdate(event) {
     const { data } = event.params;
-    console.log(data.article)
 
     const currentTranslationRequest = await strapi.entityService.findOne('api::translation-request.translation-request', data.id, {
-      populate: ['article'],
+      populate: ['article', 'language'],
     }) as TranslationRequest;
 
-    if (currentTranslationRequest.language !== data.language) {
+    if ((data?.language?.disconnect.length > 0 && data?.language?.connect.length === 0) || (data?.article?.disconnect.length > 0 && data?.article?.connect.length === 0)) throw new ValidationError('An article and a language is required for translation requests');
+
+    const isLanguageUpdated = (data?.language?.connect[0]?.id !== currentTranslationRequest?.language?.id) && !(data?.language?.connect.length === 0 && data?.language?.disconnect.length === 0);
+
+    const isArticleUpdated = (data?.article?.connect[0]?.id !== currentTranslationRequest?.article?.id) && !(data?.article?.connect?.length === 0 && data?.article?.disconnect?.length === 0);
+
+    console.log({
+      isLanguageUpdated,
+      isArticleUpdated
+    })
+    if (isLanguageUpdated || isArticleUpdated) {
       const translationRequestsWithSameArticleAndLanguage = await strapi.entityService.findMany('api::translation-request.translation-request', {
-        populate: ['article'],
+        populate: ['article', 'language'],
         filters: {
           $and: [
             {
-              language: data.language
+              language: {
+                id: isLanguageUpdated ? data.language.connect[0].id : currentTranslationRequest.language.id
+              }
             },
             {
               article: {
-                id: currentTranslationRequest.article.id
+                id: isArticleUpdated ? data.article.connect[0].id : currentTranslationRequest.article.id
               }
             },
           ],
@@ -147,6 +178,9 @@ export default {
 
     const translationRequestWithArticles = await strapi.entityService.findOne('api::translation-request.translation-request', params.data.id, {
       populate: {
+        language: {
+          fields: ['name', 'code']
+        },
         article: {
           populate: ['subscribers']
         }
@@ -154,6 +188,8 @@ export default {
     });
 
     const emailAddresses = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.email);
+
+    console.log(translationRequestWithArticles)
 
     if (!result.updatedBy) return
 
@@ -167,7 +203,8 @@ export default {
         id: Number(translationRequestWithArticles.article.id),
         title: translationRequestWithArticles.article.title
       },
-      result,
+      // @ts-expect-error
+      translationRequestWithArticles,
       updater
     );
   }

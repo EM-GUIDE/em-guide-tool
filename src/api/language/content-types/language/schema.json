@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "languages",
+  "info": {
+    "singularName": "language",
+    "pluralName": "languages",
+    "displayName": "Language",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "paperTrail": {
+      "enabled": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "code": {
+      "type": "string",
+      "regex": "^[a-z]{2}$",
+      "default": "en",
+      "required": true,
+      "unique": true
+    },
+    "articles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::article.article",
+      "mappedBy": "language"
+    },
+    "translation_requests": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::translation-request.translation-request",
+      "mappedBy": "language"
+    }
+  }
+}

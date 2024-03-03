@@ -11,48 +11,29 @@
     "draftAndPublish": true
   },
   "pluginOptions": {
-    "i18n": {
-      "localized": true
-    },
     "paperTrail": {
       "enabled": true
     }
   },
   "attributes": {
     "title": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "string",
       "required": true
     },
     "slug": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "uid",
       "targetField": "title",
       "required": true
     },
     "url": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "string",
       "unique": true
     },
     "excerpt": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "text"
     },
     "admin_user": {
@@ -64,18 +45,8 @@
       "displayName": "originalUrls",
       "type": "component",
       "repeatable": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "component": "url.original-urls"
-    },
-    "translation_requests": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::translation-request.translation-request",
-      "mappedBy": "article"
     },
     "authors": {
       "type": "relation",
@@ -90,11 +61,7 @@
       "allowedTypes": [
         "images"
       ],
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
+      "pluginOptions": {}
     },
     "subscribers": {
       "type": "relation",
@@ -110,6 +77,17 @@
     "articleData": {
       "type": "string"
     },
+    "language": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::language.language",
+      "inversedBy": "articles"
+    },
+    "translation_requests": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::translation-request.translation-request",
+      "mappedBy": "article"
     }
   }
 }

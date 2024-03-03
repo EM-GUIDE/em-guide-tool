@@ -16,22 +16,6 @@
         }
     },
     "attributes": {
-        "article": {
-            "type": "relation",
-            "relation": "manyToOne",
-            "target": "api::article.article",
-            "inversedBy": "translation_requests"
-        },
-        "language": {
-            "type": "enumeration",
-            "enum": [
-                "en",
-                "hu",
-                "it",
-                "es"
-            ],
-            "required": true
-        },
         "status": {
             "type": "enumeration",
             "enum": [
@@ -44,6 +28,21 @@
             ],
             "default": "open",
             "required": true
+        },
+        "translationData": {
+            "type": "string"
+        },
+        "language": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::language.language",
+            "inversedBy": "translation_requests"
+        },
+        "article": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::article.article",
+            "inversedBy": "translation_requests"
         }
     }
 }
