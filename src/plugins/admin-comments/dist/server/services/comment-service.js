@@ -12,7 +12,7 @@ const sendEmails = async (recipients, template, title, article, creatorOrUpdater
             html: template({
                 articleTitle: article.title,
                 name: `${creatorOrUpdater.firstname} ${creatorOrUpdater.lastname}`,
-                link: `${(0, utils_1.env)('URL')}admin/content-manager/collectionType/api::article.article/${article.id}`
+                link: `${(0, utils_1.env)('URL')}admin/content-manager/collection-types/api::article.article/${article.id}`
             })
         });
     });

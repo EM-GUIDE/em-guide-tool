@@ -41,7 +41,7 @@ export const CommentItem = ({
               as="div"
               ellipsis
             >
-              {`${comment.admin_user.firstname} ${comment.admin_user.lastname}`}
+              {`${comment.admin_user.firstname} ${comment.admin_user.lastname ?? ""}`}
             </Typography>
             <Typography
               variant="pi"

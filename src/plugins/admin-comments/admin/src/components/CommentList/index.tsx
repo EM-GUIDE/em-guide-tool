@@ -114,7 +114,7 @@ export const CommentList = ({ id, slug }: { id: string; slug: string }) => {
                 Posted by:
               </Typography>
               <Typography variant="pi" as="span">
-                {`${lastComment.admin_user.firstname} ${lastComment.admin_user.lastname}`}
+                {`${lastComment.admin_user.firstname} ${lastComment.admin_user.lastname ?? ""}`}
               </Typography>
             </Flex>
           </Flex>
