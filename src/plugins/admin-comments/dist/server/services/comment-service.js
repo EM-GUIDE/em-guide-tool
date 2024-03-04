@@ -34,7 +34,7 @@ exports.default = ({ strapi }) => ({
         const administrators = await strapi.query("admin::user").findMany();
         const commenter = administrators.find((admin) => admin.id === commenterId);
         const subscribedAdministrators = administrators.filter((admin) => subscriberIds.includes(admin.id));
-        const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
+        const emailAddresses = subscribedAdministrators.filter(admin => admin.id !== commenterId).map((admin) => admin.email);
         if (!article) {
             throw new Error('Article not found');
         }

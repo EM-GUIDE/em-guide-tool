@@ -62,7 +62,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
 
     const subscribedAdministrators = administrators.filter((admin) => subscriberIds.includes(admin.id));
 
-    const emailAddresses = subscribedAdministrators.map((admin) => admin.email);
+    const emailAddresses = subscribedAdministrators.filter(admin => admin.id !== commenterId).map((admin) => admin.email);
 
     if (!article) {
       throw new Error('Article not found');
