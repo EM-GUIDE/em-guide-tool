@@ -24,7 +24,7 @@
         "in_progress",
         "in_review",
         "flagged",
-        "accepted"
+        "done"
       ],
       "default": "open",
       "required": true

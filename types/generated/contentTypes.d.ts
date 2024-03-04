@@ -1102,7 +1102,7 @@ export interface ApiTranslationRequestTranslationRequest
   };
   attributes: {
     status: Attribute.Enumeration<
-      ['open', 'claimed', 'in_progress', 'in_review', 'flagged', 'accepted']
+      ['open', 'claimed', 'in_progress', 'in_review', 'flagged', 'done']
     > &
       Attribute.Required &
       Attribute.DefaultTo<'open'>;
