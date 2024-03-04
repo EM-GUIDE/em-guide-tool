@@ -15,7 +15,7 @@ const sendEmails = async (recipients, template, title, article, translationReque
                 articleTitle: article.title,
                 language: translationRequest.language.name,
                 name: `${creatorOrUpdater.firstname}`,
-                link: `${(0, utils_1.env)('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${article.id}`
+                link: `${(0, utils_1.env)('URL')}admin/content-manager/collection-types/api::translation-request.translation-request/${translationRequest.id}`
             })
         });
     });

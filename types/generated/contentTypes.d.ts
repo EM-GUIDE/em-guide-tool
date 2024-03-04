@@ -362,260 +362,6 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
-export interface ApiArticleArticle extends Schema.CollectionType {
-  collectionName: 'articles';
-  info: {
-    singularName: 'article';
-    pluralName: 'articles';
-    displayName: 'Article';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  pluginOptions: {
-    paperTrail: {
-      enabled: true;
-    };
-  };
-  attributes: {
-    title: Attribute.String & Attribute.Required;
-    slug: Attribute.UID<'api::article.article', 'title'> & Attribute.Required;
-    url: Attribute.String & Attribute.Unique;
-    excerpt: Attribute.Text;
-    admin_user: Attribute.Relation<
-      'api::article.article',
-      'oneToOne',
-      'admin::user'
-    >;
-    urls: Attribute.Component<'url.original-urls', true>;
-    authors: Attribute.Relation<
-      'api::article.article',
-      'manyToMany',
-      'api::author.author'
-    >;
-    images: Attribute.Media;
-    subscribers: Attribute.Relation<
-      'api::article.article',
-      'oneToMany',
-      'admin::user'
-    >;
-    origin: Attribute.Relation<
-      'api::article.article',
-      'manyToOne',
-      'api::magazine.magazine'
-    >;
-    articleData: Attribute.String;
-    language: Attribute.Relation<
-      'api::article.article',
-      'manyToOne',
-      'api::language.language'
-    >;
-    translation_requests: Attribute.Relation<
-      'api::article.article',
-      'oneToMany',
-      'api::translation-request.translation-request'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::article.article',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::article.article',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiAuthorAuthor extends Schema.CollectionType {
-  collectionName: 'authors';
-  info: {
-    singularName: 'author';
-    pluralName: 'authors';
-    displayName: 'Author';
-    description: '';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  pluginOptions: {
-    paperTrail: {
-      enabled: true;
-    };
-  };
-  attributes: {
-    name: Attribute.String & Attribute.Required;
-    slug: Attribute.UID<'api::author.author', 'name'> & Attribute.Required;
-    articles: Attribute.Relation<
-      'api::author.author',
-      'manyToMany',
-      'api::article.article'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::author.author',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::author.author',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiLanguageLanguage extends Schema.CollectionType {
-  collectionName: 'languages';
-  info: {
-    singularName: 'language';
-    pluralName: 'languages';
-    displayName: 'Language';
-    description: '';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  pluginOptions: {
-    paperTrail: {
-      enabled: true;
-    };
-  };
-  attributes: {
-    name: Attribute.String & Attribute.Required & Attribute.Unique;
-    code: Attribute.String &
-      Attribute.Required &
-      Attribute.Unique &
-      Attribute.DefaultTo<'en'>;
-    articles: Attribute.Relation<
-      'api::language.language',
-      'oneToMany',
-      'api::article.article'
-    >;
-    translation_requests: Attribute.Relation<
-      'api::language.language',
-      'oneToMany',
-      'api::translation-request.translation-request'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::language.language',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::language.language',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiMagazineMagazine extends Schema.CollectionType {
-  collectionName: 'magazines';
-  info: {
-    singularName: 'magazine';
-    pluralName: 'magazines';
-    displayName: 'Magazine';
-    description: '';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  pluginOptions: {
-    paperTrail: {
-      enabled: false;
-    };
-  };
-  attributes: {
-    name: Attribute.String & Attribute.Required;
-    slug: Attribute.UID<'api::magazine.magazine', 'name'> & Attribute.Required;
-    articles: Attribute.Relation<
-      'api::magazine.magazine',
-      'oneToMany',
-      'api::article.article'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::magazine.magazine',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::magazine.magazine',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiTranslationRequestTranslationRequest
-  extends Schema.CollectionType {
-  collectionName: 'translation_requests';
-  info: {
-    singularName: 'translation-request';
-    pluralName: 'translation-requests';
-    displayName: 'Translation Request';
-    description: '';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  pluginOptions: {
-    paperTrail: {
-      enabled: true;
-    };
-  };
-  attributes: {
-    status: Attribute.Enumeration<
-      ['open', 'claimed', 'in_progress', 'in_review', 'flagged', 'accepted']
-    > &
-      Attribute.Required &
-      Attribute.DefaultTo<'open'>;
-    translationData: Attribute.String;
-    language: Attribute.Relation<
-      'api::translation-request.translation-request',
-      'manyToOne',
-      'api::language.language'
-    >;
-    article: Attribute.Relation<
-      'api::translation-request.translation-request',
-      'manyToOne',
-      'api::article.article'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::translation-request.translation-request',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::translation-request.translation-request',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -1134,6 +880,260 @@ export interface PluginPaperTrailTrail extends Schema.CollectionType {
   };
 }
 
+export interface ApiArticleArticle extends Schema.CollectionType {
+  collectionName: 'articles';
+  info: {
+    singularName: 'article';
+    pluralName: 'articles';
+    displayName: 'Article';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    paperTrail: {
+      enabled: true;
+    };
+  };
+  attributes: {
+    title: Attribute.String & Attribute.Required;
+    slug: Attribute.UID<'api::article.article', 'title'> & Attribute.Required;
+    url: Attribute.String & Attribute.Unique;
+    excerpt: Attribute.Text;
+    admin_user: Attribute.Relation<
+      'api::article.article',
+      'oneToOne',
+      'admin::user'
+    >;
+    urls: Attribute.Component<'url.original-urls', true>;
+    authors: Attribute.Relation<
+      'api::article.article',
+      'manyToMany',
+      'api::author.author'
+    >;
+    images: Attribute.Media;
+    subscribers: Attribute.Relation<
+      'api::article.article',
+      'oneToMany',
+      'admin::user'
+    >;
+    origin: Attribute.Relation<
+      'api::article.article',
+      'manyToOne',
+      'api::magazine.magazine'
+    >;
+    articleData: Attribute.String;
+    language: Attribute.Relation<
+      'api::article.article',
+      'manyToOne',
+      'api::language.language'
+    >;
+    translation_requests: Attribute.Relation<
+      'api::article.article',
+      'oneToMany',
+      'api::translation-request.translation-request'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::article.article',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::article.article',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiAuthorAuthor extends Schema.CollectionType {
+  collectionName: 'authors';
+  info: {
+    singularName: 'author';
+    pluralName: 'authors';
+    displayName: 'Author';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    paperTrail: {
+      enabled: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required;
+    slug: Attribute.UID<'api::author.author', 'name'> & Attribute.Required;
+    articles: Attribute.Relation<
+      'api::author.author',
+      'manyToMany',
+      'api::article.article'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::author.author',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::author.author',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiLanguageLanguage extends Schema.CollectionType {
+  collectionName: 'languages';
+  info: {
+    singularName: 'language';
+    pluralName: 'languages';
+    displayName: 'Language';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    paperTrail: {
+      enabled: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required & Attribute.Unique;
+    code: Attribute.String &
+      Attribute.Required &
+      Attribute.Unique &
+      Attribute.DefaultTo<'en'>;
+    articles: Attribute.Relation<
+      'api::language.language',
+      'oneToMany',
+      'api::article.article'
+    >;
+    translation_requests: Attribute.Relation<
+      'api::language.language',
+      'oneToMany',
+      'api::translation-request.translation-request'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::language.language',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::language.language',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiMagazineMagazine extends Schema.CollectionType {
+  collectionName: 'magazines';
+  info: {
+    singularName: 'magazine';
+    pluralName: 'magazines';
+    displayName: 'Magazine';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    paperTrail: {
+      enabled: false;
+    };
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required;
+    slug: Attribute.UID<'api::magazine.magazine', 'name'> & Attribute.Required;
+    articles: Attribute.Relation<
+      'api::magazine.magazine',
+      'oneToMany',
+      'api::article.article'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::magazine.magazine',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::magazine.magazine',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiTranslationRequestTranslationRequest
+  extends Schema.CollectionType {
+  collectionName: 'translation_requests';
+  info: {
+    singularName: 'translation-request';
+    pluralName: 'translation-requests';
+    displayName: 'Translation Request';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    paperTrail: {
+      enabled: true;
+    };
+  };
+  attributes: {
+    status: Attribute.Enumeration<
+      ['open', 'claimed', 'in_progress', 'in_review', 'flagged', 'accepted']
+    > &
+      Attribute.Required &
+      Attribute.DefaultTo<'open'>;
+    translationData: Attribute.String;
+    language: Attribute.Relation<
+      'api::translation-request.translation-request',
+      'manyToOne',
+      'api::language.language'
+    >;
+    article: Attribute.Relation<
+      'api::translation-request.translation-request',
+      'manyToOne',
+      'api::article.article'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::translation-request.translation-request',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::translation-request.translation-request',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1144,11 +1144,6 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
-      'api::article.article': ApiArticleArticle;
-      'api::author.author': ApiAuthorAuthor;
-      'api::language.language': ApiLanguageLanguage;
-      'api::magazine.magazine': ApiMagazineMagazine;
-      'api::translation-request.translation-request': ApiTranslationRequestTranslationRequest;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
@@ -1159,6 +1154,11 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::paper-trail.trail': PluginPaperTrailTrail;
+      'api::article.article': ApiArticleArticle;
+      'api::author.author': ApiAuthorAuthor;
+      'api::language.language': ApiLanguageLanguage;
+      'api::magazine.magazine': ApiMagazineMagazine;
+      'api::translation-request.translation-request': ApiTranslationRequestTranslationRequest;
     }
   }
 }

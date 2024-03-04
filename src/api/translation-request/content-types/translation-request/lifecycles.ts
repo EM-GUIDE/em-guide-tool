@@ -61,7 +61,7 @@ const sendEmails = async (
         articleTitle: article.title,
         language: translationRequest.language.name,
         name: `${creatorOrUpdater.firstname}`,
-        link: `${env('URL')}admin/content-manager/collectionType/api::translation-request.translation-request/${article.id}`
+        link: `${env('URL')}admin/content-manager/collection-types/api::translation-request.translation-request/${translationRequest.id}`
       })
     });
   });
