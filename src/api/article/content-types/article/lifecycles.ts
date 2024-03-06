@@ -51,6 +51,13 @@ const sendEmails = async (
 };
 
 export default {
+  async beforeCreate(event) {
+    const { data } = event.params;
+
+    // subscribe the creator to the article by default
+    data.subscribers.connect = [data.createdBy]
+  },
+
   async beforeUpdate(event) {
     const { data, where, select, populate } = event.params;
 
