@@ -20,6 +20,11 @@ const sendEmails = async (recipients, template, title, article, creatorOrUpdater
     await Promise.all(promises);
 };
 exports.default = {
+    async beforeCreate(event) {
+        const { data } = event.params;
+        // subscribe the creator to the article by default
+        data.subscribers.connect = [data.createdBy];
+    },
     async beforeUpdate(event) {
         const { data, where, select, populate } = event.params;
         const article = await strapi.query("api::article.article").findOne({
