@@ -5,8 +5,15 @@ export default [
   'strapi::poweredBy',
   'strapi::logger',
   'strapi::query',
-  'strapi::body',
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
+  {
+    name: "strapi::body",
+    config: {
+      formidable: {
+        maxFileSize: 10 * 1024 * 1024, // ~10MB
+      },
+    },
+  },
 ];
