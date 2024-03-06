@@ -43,6 +43,14 @@
             "relation": "manyToOne",
             "target": "api::article.article",
             "inversedBy": "translation_requests"
+        },
+        "attachments": {
+            "allowedTypes": [
+                "images",
+                "files"
+            ],
+            "type": "media",
+            "multiple": true
         }
     }
 }

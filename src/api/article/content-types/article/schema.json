@@ -88,6 +88,14 @@
       "relation": "oneToMany",
       "target": "api::translation-request.translation-request",
       "mappedBy": "article"
+    },
+    "attachments": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": true
     }
   }
 }
