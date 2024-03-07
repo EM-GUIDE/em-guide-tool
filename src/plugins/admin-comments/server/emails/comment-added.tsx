@@ -28,7 +28,7 @@ export const commentAddedEmailTemplate = ({
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
-        <MjmlTitle>EM Guide | Comment added</MjmlTitle>
+        <MjmlTitle>EM GUIDE | Comment added</MjmlTitle>
         <MjmlPreview>{name} has commented on an article you have subscribed to...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
@@ -41,7 +41,7 @@ export const commentAddedEmailTemplate = ({
             lineHeight="1.5"
             paddingBottom=" 16px"
           >
-            EM Guide | Comment added
+            EM GUIDE | Comment added
           </MjmlText>
           <MjmlDivider padding="16px 0" border-width="1px" border-color="#F6F6F9" />
         </MjmlSection>

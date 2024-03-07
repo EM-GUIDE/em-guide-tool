@@ -37,7 +37,7 @@ exports.default = {
             const administrators = await strapi.query("admin::user").findMany();
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailsAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
-            await sendEmails(emailsAddresses, create_article_1.createArticleEmailTemplate, "EM Guide: New ar ticle has been created", {
+            await sendEmails(emailsAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`, {
                 id: article.id,
                 title: article.title
             }, creator);
@@ -66,7 +66,7 @@ exports.default = {
     //   await sendEmails(
     //     emailAddresses,
     //     updatedArticleEmailTemplate,
-    //     'EM Guide: Article has been updated',
+    //     'EM GUIDE: Article has been updated',
     //     result,
     //     updater
     //   );

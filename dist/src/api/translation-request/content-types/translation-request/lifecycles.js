@@ -62,7 +62,7 @@ exports.default = {
         }
         const creator = result.createdBy;
         const emailAddresses = connectedArticle.subscribers.map((subscriber) => subscriber.email);
-        await sendEmails(emailAddresses, create_translation_request_1.createTranslationRequestEmailTemplate, 'EM Guide: New translation request has been created', connectedArticle, result, creator);
+        await sendEmails(emailAddresses, create_translation_request_1.createTranslationRequestEmailTemplate, `EM GUIDE: Translation request has been created for ${connectedArticle.title} by ${creator.firstname}`, connectedArticle, result, creator);
     },
     async beforeUpdate(event) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
@@ -114,11 +114,10 @@ exports.default = {
             }
         });
         const emailAddresses = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.email);
-        console.log(translationRequestWithArticles);
         if (!result.updatedBy)
             return;
         const updater = result.updatedBy;
-        await sendEmails(emailAddresses, updated_translation_request_1.updatedTranslationRequestEmailTemplate, 'EM Guide: Translation request has been updated', {
+        await sendEmails(emailAddresses, updated_translation_request_1.updatedTranslationRequestEmailTemplate, `EM GUIDE: Translation request for ${translationRequestWithArticles.article.title} has been updated`, {
             id: Number(translationRequestWithArticles.article.id),
             title: translationRequestWithArticles.article.title
         }, 

@@ -79,7 +79,7 @@ export default {
       await sendEmails(
         emailsAddresses,
         createArticleEmailTemplate,
-        "EM Guide: New ar ticle has been created",
+        `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`,
         {
           id: article.id,
           title: article.title
@@ -119,7 +119,7 @@ export default {
   //   await sendEmails(
   //     emailAddresses,
   //     updatedArticleEmailTemplate,
-  //     'EM Guide: Article has been updated',
+  //     'EM GUIDE: Article has been updated',
   //     result,
   //     updater
   //   );

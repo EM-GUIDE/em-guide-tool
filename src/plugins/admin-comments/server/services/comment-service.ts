@@ -71,7 +71,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     await sendEmails(
       emailAddresses,
       commentAddedEmailTemplate,
-      'EM Guide: Comment added',
+      `EM GUIDE: Article ${article.title} has a new comment`,
       article,
       commenter
     );

@@ -124,7 +124,7 @@ export default {
     await sendEmails(
       emailAddresses,
       createTranslationRequestEmailTemplate,
-      'EM Guide: New translation request has been created',
+      `EM GUIDE: Translation request has been created for ${connectedArticle.title} by ${creator.firstname}`,
       connectedArticle,
       result,
       creator
@@ -189,8 +189,6 @@ export default {
 
     const emailAddresses = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.email);
 
-    console.log(translationRequestWithArticles)
-
     if (!result.updatedBy) return
 
     const updater = result.updatedBy;
@@ -198,7 +196,7 @@ export default {
     await sendEmails(
       emailAddresses,
       updatedTranslationRequestEmailTemplate,
-      'EM Guide: Translation request has been updated',
+      `EM GUIDE: Translation request for ${translationRequestWithArticles.article.title} has been updated`,
       {
         id: Number(translationRequestWithArticles.article.id),
         title: translationRequestWithArticles.article.title

@@ -29,7 +29,7 @@ export const createTranslationRequestEmailTemplate = ({
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
-        <MjmlTitle>EM Guide | New translation request created</MjmlTitle>
+        <MjmlTitle>EM GUIDE | New translation request created</MjmlTitle>
         <MjmlPreview>
           {name} has created a new translation request...
         </MjmlPreview>
@@ -44,7 +44,7 @@ export const createTranslationRequestEmailTemplate = ({
             lineHeight="1.5"
             paddingBottom=" 16px"
           >
-            EM Guide | New translation request created
+            EM GUIDE | New translation request created
           </MjmlText>
           <MjmlDivider
             padding="16px 0"

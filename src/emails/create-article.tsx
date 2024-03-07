@@ -27,7 +27,7 @@ export const createArticleEmailTemplate = ({
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
-        <MjmlTitle>EM Guide | New article created</MjmlTitle>
+        <MjmlTitle>EM GUIDE | New article created</MjmlTitle>
         <MjmlPreview>{name} has created a new article...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
@@ -40,7 +40,7 @@ export const createArticleEmailTemplate = ({
             lineHeight="1.5"
             paddingBottom=" 16px"
           >
-            EM Guide | New article created
+            EM GUIDE | New article created
           </MjmlText>
           <MjmlDivider padding="16px 0" border-width="1px" border-color="#F6F6F9" />
         </MjmlSection>
