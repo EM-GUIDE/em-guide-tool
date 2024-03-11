@@ -59,7 +59,7 @@ export default {
   },
 
   async beforeUpdate(event) {
-    const { data, where, select, populate } = event.params;
+    const { data, where } = event.params;
 
     const article = await strapi.query("api::article.article").findOne({
       where: {
