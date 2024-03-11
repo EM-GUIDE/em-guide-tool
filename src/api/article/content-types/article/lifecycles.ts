@@ -74,10 +74,10 @@ export default {
       const creator = administrators.find(
         (admin) => admin.id === data.updatedBy,
       );
-      const emailsAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
+      const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
 
       await sendEmails(
-        emailsAddresses,
+        emailAddresses,
         createArticleEmailTemplate,
         `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`,
         {
