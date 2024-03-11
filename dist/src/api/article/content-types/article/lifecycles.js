@@ -26,7 +26,7 @@ exports.default = {
         data.subscribers.connect = [data.createdBy];
     },
     async beforeUpdate(event) {
-        const { data, where, select, populate } = event.params;
+        const { data, where } = event.params;
         const article = await strapi.query("api::article.article").findOne({
             where: {
                 id: where.id
@@ -36,8 +36,8 @@ exports.default = {
         if (article && !article.publishedAt) {
             const administrators = await strapi.query("admin::user").findMany();
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
-            const emailsAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
-            await sendEmails(emailsAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`, {
+            const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
+            await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`, {
                 id: article.id,
                 title: article.title
             }, creator);

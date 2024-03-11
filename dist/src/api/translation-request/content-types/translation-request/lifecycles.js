@@ -61,7 +61,7 @@ exports.default = {
             throw new ValidationError('Article not found');
         }
         const creator = result.createdBy;
-        const emailAddresses = connectedArticle.subscribers.map((subscriber) => subscriber.email);
+        const emailAddresses = connectedArticle.subscribers.filter((subscriber) => subscriber.id !== creator.id).map(subscriber => subscriber.email);
         await sendEmails(emailAddresses, create_translation_request_1.createTranslationRequestEmailTemplate, `EM GUIDE: Translation request has been created for ${connectedArticle.title} by ${creator.firstname}`, connectedArticle, result, creator);
     },
     async beforeUpdate(event) {
@@ -74,10 +74,6 @@ exports.default = {
             throw new ValidationError('An article and a language is required for translation requests');
         const isLanguageUpdated = (((_f = (_e = data === null || data === void 0 ? void 0 : data.language) === null || _e === void 0 ? void 0 : _e.connect[0]) === null || _f === void 0 ? void 0 : _f.id) !== ((_g = currentTranslationRequest === null || currentTranslationRequest === void 0 ? void 0 : currentTranslationRequest.language) === null || _g === void 0 ? void 0 : _g.id)) && !(((_h = data === null || data === void 0 ? void 0 : data.language) === null || _h === void 0 ? void 0 : _h.connect.length) === 0 && ((_j = data === null || data === void 0 ? void 0 : data.language) === null || _j === void 0 ? void 0 : _j.disconnect.length) === 0);
         const isArticleUpdated = (((_l = (_k = data === null || data === void 0 ? void 0 : data.article) === null || _k === void 0 ? void 0 : _k.connect[0]) === null || _l === void 0 ? void 0 : _l.id) !== ((_m = currentTranslationRequest === null || currentTranslationRequest === void 0 ? void 0 : currentTranslationRequest.article) === null || _m === void 0 ? void 0 : _m.id)) && !(((_p = (_o = data === null || data === void 0 ? void 0 : data.article) === null || _o === void 0 ? void 0 : _o.connect) === null || _p === void 0 ? void 0 : _p.length) === 0 && ((_r = (_q = data === null || data === void 0 ? void 0 : data.article) === null || _q === void 0 ? void 0 : _q.disconnect) === null || _r === void 0 ? void 0 : _r.length) === 0);
-        console.log({
-            isLanguageUpdated,
-            isArticleUpdated
-        });
         if (isLanguageUpdated || isArticleUpdated) {
             const translationRequestsWithSameArticleAndLanguage = await strapi.entityService.findMany('api::translation-request.translation-request', {
                 populate: ['article', 'language'],
@@ -113,10 +109,10 @@ exports.default = {
                 }
             }
         });
-        const emailAddresses = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.email);
         if (!result.updatedBy)
             return;
         const updater = result.updatedBy;
+        const emailAddresses = translationRequestWithArticles.article.subscribers.filter((subscriber) => subscriber.id !== updater.id).map(subscriber => subscriber.email);
         await sendEmails(emailAddresses, updated_translation_request_1.updatedTranslationRequestEmailTemplate, `EM GUIDE: Translation request for ${translationRequestWithArticles.article.title} has been updated`, {
             id: Number(translationRequestWithArticles.article.id),
             title: translationRequestWithArticles.article.title

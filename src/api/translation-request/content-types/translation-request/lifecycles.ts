@@ -119,7 +119,7 @@ export default {
 
     const creator = result.createdBy;
 
-    const emailAddresses = connectedArticle.subscribers.map((subscriber) => subscriber.email);
+    const emailAddresses = connectedArticle.subscribers.filter((subscriber) => subscriber.id !== creator.id).map(subscriber => subscriber.email);
 
     await sendEmails(
       emailAddresses,
@@ -144,10 +144,6 @@ export default {
 
     const isArticleUpdated = (data?.article?.connect[0]?.id !== currentTranslationRequest?.article?.id) && !(data?.article?.connect?.length === 0 && data?.article?.disconnect?.length === 0);
 
-    console.log({
-      isLanguageUpdated,
-      isArticleUpdated
-    })
     if (isLanguageUpdated || isArticleUpdated) {
       const translationRequestsWithSameArticleAndLanguage = await strapi.entityService.findMany('api::translation-request.translation-request', {
         populate: ['article', 'language'],
@@ -187,11 +183,12 @@ export default {
       }
     });
 
-    const emailAddresses = translationRequestWithArticles.article.subscribers.map((subscriber) => subscriber.email);
-
+    
     if (!result.updatedBy) return
-
+    
     const updater = result.updatedBy;
+
+    const emailAddresses = translationRequestWithArticles.article.subscribers.filter((subscriber) => subscriber.id !== updater.id).map(subscriber => subscriber.email);
 
     await sendEmails(
       emailAddresses,
