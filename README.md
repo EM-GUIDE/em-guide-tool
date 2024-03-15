@@ -57,7 +57,7 @@ When making changes to the code, use the following commands to stop & rebuild th
 
    ` docker compose build`
 
-**Important note**: never down or delete the databasse volume as it stores the state of your application (users, articles, translation requests, settings etc.).  
+**Important note**: never down or delete the database volume as it stores the state of your application (users, articles, translation requests, settings etc.).  
 
 ## 🐛 Troubleshooting
 
