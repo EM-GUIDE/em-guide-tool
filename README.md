@@ -1,61 +1,40 @@
 # 🚀 EM GUIDE
 
-EM GUIDE is a tool designed to support the editorial group work of online journalists.
+EM GUIDE is a tool designed to support the editorial group work of online journalists. 
+
+Learn more about the EM GUIDE project at [emgui.de](https://emgui.de).
 
 ## Features
 
 - Document and manage articles
-- Create translation requests
-- Email notifications
+- Create translation requests for articles
+- Email notifications from content changes and comments
 - Search and filter articles
 - Content versioning
 
-## Getting started
-
-### Adding articles
-
-Admin users can add articles in the Conten Manager.
-
-### Email notifications
-
-By default, EM GUIDE uses [Resed](https://resend.com/) as the default provider for transactional emails. To enable this functionality, you need to specify the RESEND_API_KEY in your .env file. You can change the email provider in the plugin configuration file file located at `/config/plugins.ts`.
-For more details, you can refer to the documentation [here](https://docs.strapi.io/dev-docs/providers).
-
 ## ⚙️ Development
 
-### Develop
+EM GUIDE is developed using Strapi, a headless content management system (CMS). The Strapi admin panel, built with React, is utilized for content management without the need for a custom frontend. This setup allows for efficient content management tasks.
+
+To enhance functionality, such as admin email notifications and admin comments, custom plugins and lifecycle hooks are integrated. Strapi's robust API capabilities enable the development of a separate admin app if required.
+
+### Commands
 
 Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)
 
-```
-pnpm develop
-# or
-npm run develop
-# or
+``` bash
 yarn develop
 ```
 
-### Start
-
 Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-start)
 
-```
-pnpm run start
-# or
-npm run start
-# or
+``` bash
 yarn start
 ```
 
-### Build
-
 Build your admin panel. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-build)
 
-```
-pnpm run build
-# or
-npm run build
-# or
+``` bash
 yarn build
 ```
 
@@ -89,7 +68,7 @@ Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/
 
    ` docker compose up -d`
 
-​ This command starts the services in detached mode, allowing you to continue using the terminal.
+ This command starts the services in detached mode, allowing you to continue using the terminal.
 
 ### Troubleshooting
 
