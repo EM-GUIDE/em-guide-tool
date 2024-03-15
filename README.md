@@ -12,14 +12,14 @@ THe work has been accomplished in the context of the EM GUIDE project, learn mor
 - Search and filter articles;
 - Content versioning;
 
-## ⚙️ Development notes
+## ⚙️ General notes
 
 The EM GUIDE tool has been developed using [Strapi](https://strapi.io/), a headless content management system. The Strapi admin panel, built with React, is utilized for content management without the need for a custom frontend. 
 
 The EM GUIDE tool builds upon the Strapi to implement custom functionalities such as email notifications and commenting via custom plugins and lifecycle hooks. 
 As feature work, a custom admin interface (frontend) may be implemented using the Strapi API.
 
-## 🔨 Deployment notes
+## 🔨 Development notes
 
 Clone this repository to get the code of the EM GUIDE tool. 
 
@@ -35,7 +35,7 @@ Use the following command to start the EM GUIDE tool in production mode.
 yarn start
 ```
 
-Use the following command to build the admin panel of the EM GUIDE tool. 
+Use the following command to (re)build if needed.
 
 ``` bash
 yarn build
@@ -44,6 +44,8 @@ yarn build
 ## 🏛️ Deployment notes
 
 The EM GUIDE tool can be deployed using a Docker Compose setup (including a database, web proxy, and the application). 
+
+Clone this repository to your deployment droplet. 
 
 Use the following code to start the EM GUIDE tool on your production droplet.
 
