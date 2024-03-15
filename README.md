@@ -1,111 +1,74 @@
-# 🚀 EM GUIDE
+# The EM GUIDE Tool
 
-EM GUIDE is a tool designed to support the editorial group work of online journalists. 
+The EM GUIDE tool is a custom web application designed to support the editorial work of international journalists working in a multilingual environment.  
 
-Learn more about the EM GUIDE project at [emgui.de](https://emgui.de).
+THe work has been accomplished in the context of the EM GUIDE project, learn more about it at [emgui.de](https://emgui.de).
 
-## Features
+## 🖊️ Features
 
-- Document and manage articles
-- Create translation requests for articles
-- Email notifications from content changes and comments
-- Search and filter articles
-- Content versioning
+- Document and manage articles;
+- Create translation requests for articles;
+- Email notifications to editors of content changes and comments;
+- Search and filter articles;
+- Content versioning;
 
-## ⚙️ Development
+## ⚙️ Development notes
 
-EM GUIDE is developed using Strapi, a headless content management system (CMS). The Strapi admin panel, built with React, is utilized for content management without the need for a custom frontend. This setup allows for efficient content management tasks.
+The EM GUIDE tool has been developed using [Strapi](https://strapi.io/), a headless content management system. The Strapi admin panel, built with React, is utilized for content management without the need for a custom frontend. 
 
-To enhance functionality, such as admin email notifications and admin comments, custom plugins and lifecycle hooks are integrated. Strapi's robust API capabilities enable the development of a separate admin app if required.
+The EM GUIDE tool builds upon the Strapi to implement custom functionalities such as email notifications and commenting via custom plugins and lifecycle hooks. 
+As feature work, a custom admin interface (frontend) may be implemented using the Strapi API.
 
-### Commands
+## 🔨 Deployment notes
 
-Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)
+Clone this repository to get the code of the EM GUIDE tool. 
+
+Use the following command to start the EM GUIDE tool in development mode. 
 
 ``` bash
 yarn develop
 ```
 
-Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-start)
+Use the following command to start the EM GUIDE tool in production mode. 
 
 ``` bash
 yarn start
 ```
 
-Build your admin panel. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-build)
+Use the following command to build the admin panel of the EM GUIDE tool. 
 
 ``` bash
 yarn build
 ```
 
-Strapi also comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
+## 🏛️ Deployment notes
 
-## 📚 Learn more
+The EM GUIDE tool can be deployed using a Docker Compose setup (including a database, web proxy, and the application). 
 
-- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
-- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
-- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
-- [Strapi blog](https://strapi.io/blog) - Official Strapi blog containing artciles made by the Strapi team and the community.
-- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
+Use the following code to start the EM GUIDE tool on your production droplet.
 
-Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
+  ` docker compose up`
 
-## ✨ Community
-
-- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
-- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
-- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
-
-## ⚙️ Deployment
-
-### Making changes
-
-1. When making changes that should be reflected upon restarting the Strapi container, follow these steps:
+When making changes to the code, use the following commands to stop & rebuild the application.
 
    ` docker compose down`
 
-2. Restart the Docker Compose services with the updated configuration. Use the command:
+   ` docker compose build`
+
+**Important note**: never down or delete the databasse volume as it stores the state of your application (users, articles, translation requests, settings etc.).  
+
+## 🐛 Troubleshooting
+
+The following commands may help with troubleshooting your setup. 
+
+Use the `-d` option to read the logs of all Docker services.
 
    ` docker compose up -d`
 
- This command starts the services in detached mode, allowing you to continue using the terminal.
-
-### Troubleshooting
-
-If you encounter issues where changes are not visible after restarting the Strapi container, it may be necessary to rebuild the Strapi service without using the cache. Follow these steps:
-
-1. Stop the Docker Compose services if they are running, using:
-
-   `docker compose down`
-
-2. Rebuild the Strapi service without cache to ensure all changes are applied. Use the command:
+Rebuild the application without cache.
 
    `docker compose build strapi --no-cache`
 
-   This command forces Docker to rebuild the Strapi service from scratch, ignoring any cached layers.
-
-3. Restart the Docker Compose services to apply the changes:
-
-   `docker compose up -d`
-
-### Managing Docker System Resources
-
-If you encounter errors related to the build cache size or lack of space on the server, you can manage Docker system resources using the following commands:
-
-1. Check Docker system disk usage with:
+Check the disk usage of your Docker assets to make sure that your droplet's dick is not full, and delete unused assets as needed. 
 
    `docker system df`
-
-   This command provides an overview of Docker's disk usage, helping you identify if there's a need to clean up.
-
-2. Remove unused build cache with:
-
-   `docker builder prune`
-
-   This command cleans up the build cache, freeing up space if the build cache is taking up too much space.
-
-3. Remove unused images with:
-
-   `docker image prune`
-
-   This command removes unused images, helping to reclaim disk space.
