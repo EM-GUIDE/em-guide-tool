@@ -2,7 +2,7 @@
 
 The EM GUIDE tool is a custom web application designed to support the editorial work of international journalists working in a multilingual environment.  
 
-THe work has been accomplished in the context of the EM GUIDE project, learn more about it at [emgui.de](https://emgui.de).
+The development of the EM GUIDE tool has been accomplished in the context of the EM GUIDE project, learn more about it at [emgui.de](https://emgui.de).
 
 ## 🖊️ Features
 
@@ -11,6 +11,8 @@ THe work has been accomplished in the context of the EM GUIDE project, learn mor
 - Email notifications to editors of content changes and comments;
 - Search and filter articles;
 - Content versioning;
+
+A detailed user manual can be found [here](https://github.com/EM-GUIDE/em-guide-tool/wiki/User-manual). 
 
 ## ⚙️ General notes
 
