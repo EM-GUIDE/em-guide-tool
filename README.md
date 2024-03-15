@@ -16,10 +16,10 @@ A detailed user manual can be found [here](https://github.com/EM-GUIDE/em-guide-
 
 ## ⚙️ General notes
 
-The EM GUIDE tool has been developed using [Strapi](https://strapi.io/), a headless content management system. The Strapi admin panel, built with React, is utilized for content management without the need for a custom frontend. 
+The EM GUIDE tool has been developed using [Strapi](https://strapi.io/), a headless content management system. The Strapi admin panel, built natively with React, is utilized for content management without the need for a custom frontend. 
 
-The EM GUIDE tool builds upon the Strapi to implement custom functionalities such as email notifications and commenting via custom plugins and lifecycle hooks. 
-As feature work, a custom admin interface (frontend) may be implemented using the Strapi API.
+The EM GUIDE tool builds upon the Strapi to implement specific functionalities such as email notifications and commenting via custom plugins and lifecycle hooks. 
+As future work, a custom admin interface (frontend) may be implemented using the Strapi API.
 
 ## 🔨 Development notes
 
