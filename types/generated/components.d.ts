@@ -24,9 +24,11 @@ export interface UrlOriginalUrls extends Schema.Component {
   info: {
     displayName: 'originalUrls';
     icon: 'alien';
+    description: '';
   };
   attributes: {
-    url: Attribute.String;
+    url: Attribute.String &
+      Attribute.CustomField<'plugin::clickable-url-field.clickable-url'>;
   };
 }
 

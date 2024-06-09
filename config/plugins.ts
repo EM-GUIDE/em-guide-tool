@@ -31,5 +31,9 @@ export default ({ env }) => ({
     config: {
       defaultDepth: 10
     }
-  }
+  },
+  'clickable-url-field': {
+    enabled: true,
+    resolve: './src/plugins/clickable-url-field'
+  },
 });

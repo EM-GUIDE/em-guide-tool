@@ -940,6 +940,8 @@ export interface ApiArticleArticle extends Schema.CollectionType {
       'api::translation-request.translation-request'
     >;
     attachments: Attribute.Media<'images' | 'files', true>;
+    clickableUrl: Attribute.String &
+      Attribute.CustomField<'plugin::clickable-url-field.clickable-url'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

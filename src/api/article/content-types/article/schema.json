@@ -90,12 +90,17 @@
       "mappedBy": "article"
     },
     "attachments": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images",
         "files"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
+    },
+    "clickableUrl": {
+      "type": "customField",
+      "customField": "plugin::clickable-url-field.clickable-url"
     }
   }
 }
