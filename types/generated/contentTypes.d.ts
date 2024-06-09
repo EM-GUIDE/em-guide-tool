@@ -917,7 +917,7 @@ export interface ApiArticleArticle extends Schema.CollectionType {
       'manyToMany',
       'api::author.author'
     >;
-    images: Attribute.Media;
+    images: Attribute.Media<'images', true>;
     subscribers: Attribute.Relation<
       'api::article.article',
       'oneToMany',
@@ -939,7 +939,7 @@ export interface ApiArticleArticle extends Schema.CollectionType {
       'oneToMany',
       'api::translation-request.translation-request'
     >;
-    attachments: Attribute.Media;
+    attachments: Attribute.Media<'images' | 'files', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1123,7 +1123,7 @@ export interface ApiTranslationRequestTranslationRequest
       'manyToOne',
       'api::article.article'
     >;
-    attachments: Attribute.Media;
+    attachments: Attribute.Media<'images' | 'files', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
