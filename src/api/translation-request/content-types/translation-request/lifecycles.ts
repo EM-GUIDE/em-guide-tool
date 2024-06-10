@@ -33,11 +33,12 @@ interface TranslationRequest {
 
 const sendEmails = async (
   recipients: string[],
-  template: ({ articleTitle, name, language, link }: {
+  template: ({ articleTitle, name, language, link, shareUrls }: {
     articleTitle: string;
     name: string;
     language?: string,
     link: string;
+    shareUrls?: string[];
   }) => string,
   title: string,
   article: {
@@ -50,7 +51,8 @@ const sendEmails = async (
     firstname: string;
     lastname?: string;
     email: string;
-  }) => {
+  }
+) => {
   const promises = recipients.map(async (recipient) => {
     await strapi.plugins['email'].services.email.send({
       to: recipient,
@@ -183,9 +185,9 @@ export default {
       }
     });
 
-    
+
     if (!result.updatedBy) return
-    
+
     const updater = result.updatedBy;
 
     const emailAddresses = translationRequestWithArticles.article.subscribers.filter((subscriber) => subscriber.id !== updater.id).map(subscriber => subscriber.email);

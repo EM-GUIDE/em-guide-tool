@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const create_article_1 = require("../../../../emails/create-article");
+const share_article_1 = require("../../../../emails/share-article");
 // import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
 const utils_1 = require("@strapi/utils");
-const sendEmails = async (recipients, template, title, article, creatorOrUpdater) => {
+const utils_2 = require("../../../../emails/utils");
+const sendEmails = async (recipients, template, title, article, creatorOrUpdater, shareUrls) => {
     const promises = recipients.map(async (recipient) => {
         await strapi.plugins["email"].services.email.send({
             to: recipient,
@@ -14,10 +16,14 @@ const sendEmails = async (recipients, template, title, article, creatorOrUpdater
                 articleTitle: article.title,
                 name: `${creatorOrUpdater.firstname}`,
                 link: `${(0, utils_1.env)("URL")}admin/content-manager/collection-types/api::article.article/${article.id}`,
+                shareUrls: shareUrls
             }),
         });
     });
     await Promise.all(promises);
+};
+const getNewArticleUrls = (newRawData) => {
+    return newRawData.urls.filter(url => !url.id && url.url !== undefined && url.url !== '').map(url => url.url);
 };
 exports.default = {
     async beforeCreate(event) {
@@ -27,20 +33,36 @@ exports.default = {
     },
     async beforeUpdate(event) {
         const { data, where } = event.params;
-        const article = await strapi.query("api::article.article").findOne({
-            where: {
-                id: where.id
+        const article = await strapi.entityService.findOne('api::article.article', where.id, {
+            populate: {
+                urls: true
             },
-            populate: ["deep"]
         });
-        if (article && !article.publishedAt) {
+        // Get raw data
+        const ctx = strapi.requestContext.get();
+        const newRawData = ctx.request.body;
+        const numberOfCurrrentSharedUrls = article.urls.length;
+        const numberOfUpdatedSharedUrls = data.urls.length;
+        if (!article)
+            return;
+        if (!article.publishedAt) {
             const administrators = await strapi.query("admin::user").findMany();
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
             await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`, {
-                id: article.id,
+                id: Number(article.id),
                 title: article.title
             }, creator);
+        }
+        if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
+            const administrators = await strapi.query("admin::user").findMany();
+            const creator = administrators.find((admin) => admin.id === data.updatedBy);
+            const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
+            const newArticleUrls = getNewArticleUrls(newRawData);
+            await sendEmails(emailAddresses, share_article_1.createArticleShareEmailTemplate, `EM GUIDE: New share on ${(0, utils_2.truncateText)({ text: article.title })}`, {
+                id: newRawData.id,
+                title: article.title,
+            }, creator, newArticleUrls);
         }
     }
     // // Comment out to enable email notifications on article updates
