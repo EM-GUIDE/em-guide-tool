@@ -70,11 +70,15 @@ const EmailNotificationButton = () => {
 
   return (
     <Container>
-      <Label>Email Notification</Label>
-      <Divider unsetMargin={false} />
-      <Button variant="default" onClick={handleClick}>
-        {isSubscribed ? "Unsubscribe" : "Subscribe"}
-      </Button>
+      {modifiedData.publishedAt && (
+        <>
+          <Label>Email Notification</Label>
+          <Divider unsetMargin={false} />
+          <Button variant="default" onClick={handleClick}>
+            {isSubscribed ? "Unsubscribe" : "Subscribe"}
+          </Button>
+        </>
+      )}
     </Container>
   );
 };

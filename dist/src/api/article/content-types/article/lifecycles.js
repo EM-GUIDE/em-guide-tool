@@ -32,21 +32,24 @@ exports.default = {
         data.subscribers.connect = [data.createdBy];
     },
     async beforeUpdate(event) {
+        var _a, _b;
         const { data, where } = event.params;
         const article = await strapi.entityService.findOne('api::article.article', where.id, {
             populate: {
-                urls: true
+                urls: true,
+                subscribers: true,
             },
         });
         // Get raw data
         const ctx = strapi.requestContext.get();
         const newRawData = ctx.request.body;
-        const numberOfCurrrentSharedUrls = article.urls.length;
-        const numberOfUpdatedSharedUrls = data.urls.length;
+        const numberOfCurrrentSharedUrls = (_a = article.urls) === null || _a === void 0 ? void 0 : _a.length;
+        const numberOfUpdatedSharedUrls = (_b = data.urls) === null || _b === void 0 ? void 0 : _b.length;
+        let administrators = [];
         if (!article)
             return;
         if (!article.publishedAt) {
-            const administrators = await strapi.query("admin::user").findMany();
+            administrators = await strapi.query("admin::user").findMany();
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
             await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`, {
@@ -55,14 +58,20 @@ exports.default = {
             }, creator);
         }
         if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
-            const administrators = await strapi.query("admin::user").findMany();
-            const creator = administrators.find((admin) => admin.id === data.updatedBy);
-            const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
+            const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+            const subscribedAdministrators = administrators.length > 0 ? administrators.filter(admin => subscriberIds.includes(admin.id)) : await strapi.query("admin::user").findMany({
+                where: {
+                    id: {
+                        $in: subscriberIds,
+                    },
+                },
+            });
+            const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
             const newArticleUrls = getNewArticleUrls(newRawData);
-            await sendEmails(emailAddresses, share_article_1.createArticleShareEmailTemplate, `EM GUIDE: New share on ${(0, utils_2.truncateText)({ text: article.title })}`, {
+            await sendEmails(subscribedAdminEmailAddresses, share_article_1.createArticleShareEmailTemplate, `EM GUIDE: New share on ${(0, utils_2.truncateText)({ text: article.title })}`, {
                 id: newRawData.id,
                 title: article.title,
-            }, creator, newArticleUrls);
+            }, data.updatedBy, newArticleUrls);
         }
     }
     // // Comment out to enable email notifications on article updates

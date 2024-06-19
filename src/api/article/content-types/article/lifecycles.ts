@@ -72,7 +72,8 @@ export default {
 
     const article = await strapi.entityService.findOne('api::article.article', where.id, {
       populate: {
-        urls: true
+        urls: true,
+        subscribers: true,
       },
     });
 
@@ -80,17 +81,21 @@ export default {
     const ctx = strapi.requestContext.get();
     const newRawData = ctx.request.body;
 
-    const numberOfCurrrentSharedUrls = article.urls.length
-    const numberOfUpdatedSharedUrls = data.urls.length
+    const numberOfCurrrentSharedUrls = article.urls?.length
+    const numberOfUpdatedSharedUrls = data.urls?.length
+
+    let administrators = []
 
     if (!article) return;
 
     if (!article.publishedAt) {
 
-      const administrators = await strapi.query("admin::user").findMany();
+      administrators = await strapi.query("admin::user").findMany();
+
       const creator = administrators.find(
         (admin) => admin.id === data.updatedBy,
       );
+
       const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
 
       await sendEmails(
@@ -107,23 +112,29 @@ export default {
     }
 
     if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
-      const administrators = await strapi.query("admin::user").findMany();
-      const creator = administrators.find(
-        (admin) => admin.id === data.updatedBy,
-      );
-      const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
+      const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+
+      const subscribedAdministrators = administrators.length > 0 ? administrators.filter(admin => subscriberIds.includes(admin.id)) : await strapi.query("admin::user").findMany({
+        where: {
+          id: {
+            $in: subscriberIds,
+          },
+        },
+      });
+
+      const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
 
       const newArticleUrls = getNewArticleUrls(newRawData);
 
       await sendEmails(
-        emailAddresses,
+        subscribedAdminEmailAddresses,
         createArticleShareEmailTemplate,
         `EM GUIDE: New share on ${truncateText({ text: article.title })}`,
         {
           id: newRawData.id,
           title: article.title,
         },
-        creator,
+        data.updatedBy,
         newArticleUrls
       );
     }

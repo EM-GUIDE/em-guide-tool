@@ -17,12 +17,14 @@ import { truncateText } from "./utils";
 
 interface CreateTranslationRequestEmailTemplateProps {
   articleTitle: string;
+  name: string;
   link: string;
   shareUrls?: string[];
 }
 
 export const createArticleShareEmailTemplate = ({
   articleTitle,
+  name,
   link,
   shareUrls,
 }: CreateTranslationRequestEmailTemplateProps) => {
