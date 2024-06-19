@@ -1,7 +1,7 @@
 {
   "name": "em-guide-tool",
   "private": true,
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Em Guide",
   "scripts": {
     "develop": "strapi develop",
