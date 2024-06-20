@@ -1,8 +1,10 @@
 import { createArticleEmailTemplate } from "../../../../emails/create-article";
 import { createArticleShareEmailTemplate } from "../../../../emails/share-article";
 // import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
-import { env } from "@strapi/utils";
+import { errors, env } from "@strapi/utils";
 import { truncateText } from "../../../../emails/utils";
+
+const { ValidationError } = errors;
 
 interface Language {
   id: number,
@@ -74,6 +76,11 @@ export default {
       populate: {
         urls: true,
         subscribers: true,
+        origin: {
+          populate: {
+            name: true
+          }
+        },
       },
     });
 
@@ -84,11 +91,14 @@ export default {
     const numberOfCurrrentSharedUrls = article.urls?.length
     const numberOfUpdatedSharedUrls = data.urls?.length
 
+    const isNotUpdatingExistingOrigin = data.origin?.connect?.length === 0 && data.origin?.disconnect?.length === 0;
+
     let administrators = []
 
     if (!article) return;
 
     if (!article.publishedAt) {
+      if ((!article.origin && !data.origin?.connect) || article.origin && data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0) throw new ValidationError('Origin is required to create an article');
 
       administrators = await strapi.query("admin::user").findMany();
 
@@ -98,16 +108,20 @@ export default {
 
       const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
 
+      const originName = (await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id)).name;
+
       await sendEmails(
         emailAddresses,
         createArticleEmailTemplate,
-        `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`,
+        `EM GUIDE: ${originName} has published a new article: ${article.title}`,
         {
           id: Number(article.id),
           title: article.title
         },
         creator,
       );
+
+    } else {
 
     }
 

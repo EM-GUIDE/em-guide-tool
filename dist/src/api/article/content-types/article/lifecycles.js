@@ -5,6 +5,7 @@ const share_article_1 = require("../../../../emails/share-article");
 // import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
 const utils_1 = require("@strapi/utils");
 const utils_2 = require("../../../../emails/utils");
+const { ValidationError } = utils_1.errors;
 const sendEmails = async (recipients, template, title, article, creatorOrUpdater, shareUrls) => {
     const promises = recipients.map(async (recipient) => {
         await strapi.plugins["email"].services.email.send({
@@ -32,12 +33,17 @@ exports.default = {
         data.subscribers.connect = [data.createdBy];
     },
     async beforeUpdate(event) {
-        var _a, _b;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         const { data, where } = event.params;
         const article = await strapi.entityService.findOne('api::article.article', where.id, {
             populate: {
                 urls: true,
                 subscribers: true,
+                origin: {
+                    populate: {
+                        name: true
+                    }
+                },
             },
         });
         // Get raw data
@@ -45,17 +51,23 @@ exports.default = {
         const newRawData = ctx.request.body;
         const numberOfCurrrentSharedUrls = (_a = article.urls) === null || _a === void 0 ? void 0 : _a.length;
         const numberOfUpdatedSharedUrls = (_b = data.urls) === null || _b === void 0 ? void 0 : _b.length;
+        const isNotUpdatingExistingOrigin = ((_d = (_c = data.origin) === null || _c === void 0 ? void 0 : _c.connect) === null || _d === void 0 ? void 0 : _d.length) === 0 && ((_f = (_e = data.origin) === null || _e === void 0 ? void 0 : _e.disconnect) === null || _f === void 0 ? void 0 : _f.length) === 0;
         let administrators = [];
         if (!article)
             return;
         if (!article.publishedAt) {
+            if ((!article.origin && !((_g = data.origin) === null || _g === void 0 ? void 0 : _g.connect)) || article.origin && ((_j = (_h = data.origin) === null || _h === void 0 ? void 0 : _h.disconnect) === null || _j === void 0 ? void 0 : _j.length) !== 0 && ((_l = (_k = data.origin) === null || _k === void 0 ? void 0 : _k.connect) === null || _l === void 0 ? void 0 : _l.length) === 0)
+                throw new ValidationError('Origin is required to create an article');
             administrators = await strapi.query("admin::user").findMany();
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
-            await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${creator.firstname} has created a new article: ${article.title}`, {
+            const originName = (await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : (_m = data.origin) === null || _m === void 0 ? void 0 : _m.connect[0].id)).name;
+            await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${originName} has published a new article: ${article.title}`, {
                 id: Number(article.id),
                 title: article.title
             }, creator);
+        }
+        else {
         }
         if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
             const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
