@@ -38,7 +38,7 @@ exports.default = {
         data.subscribers.connect = [data.createdBy];
     },
     async beforeUpdate(event) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         const { data, where } = event.params;
         const article = await strapi.entityService.findOne('api::article.article', where.id, {
             populate: {
@@ -60,16 +60,18 @@ exports.default = {
         let administrators = [];
         if (!article)
             return;
+        // * Guard clause to prevent adding or publishing an article without an origin
+        const isWithoutAndNotAddingOrigin = !article.origin && ((_d = (_c = data.origin) === null || _c === void 0 ? void 0 : _c.connect) === null || _d === void 0 ? void 0 : _d.length) === 0;
+        const isUpdatedWithOriginRemoved = ((_f = (_e = data.origin) === null || _e === void 0 ? void 0 : _e.disconnect) === null || _f === void 0 ? void 0 : _f.length) !== 0 && ((_h = (_g = data.origin) === null || _g === void 0 ? void 0 : _g.connect) === null || _h === void 0 ? void 0 : _h.length) === 0;
+        if (isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved)
+            throw new ValidationError('Origin is required for articles');
         // * If the article is not published
         if (!article.publishedAt) {
-            // * Guard clause to prevent publishing an article without an origin
-            if ((!article.origin && !((_c = data.origin) === null || _c === void 0 ? void 0 : _c.connect)) || article.origin && ((_e = (_d = data.origin) === null || _d === void 0 ? void 0 : _d.disconnect) === null || _e === void 0 ? void 0 : _e.length) !== 0 && ((_g = (_f = data.origin) === null || _f === void 0 ? void 0 : _f.connect) === null || _g === void 0 ? void 0 : _g.length) === 0)
-                throw new ValidationError('Origin is required to create an article');
             const isNotUpdatingExistingOrigin = !data.origin && !newRawData.origin;
             administrators = await strapi.query("admin::user").findMany();
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
-            const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : (_h = data.origin) === null || _h === void 0 ? void 0 : _h.connect[0].id);
+            const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : (_j = data.origin) === null || _j === void 0 ? void 0 : _j.connect[0].id);
             await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${origin.name} has published a new article: ${article.title}`, {
                 id: Number(article.id),
                 title: article.title
@@ -77,10 +79,6 @@ exports.default = {
             // * If the article is published
         }
         else {
-            const isWithoutAndNotAddingOrigin = !article.origin && ((_k = (_j = data.origin) === null || _j === void 0 ? void 0 : _j.connect) === null || _k === void 0 ? void 0 : _k.length) === 0;
-            const isUpdatedWithOriginRemoved = ((_m = (_l = data.origin) === null || _l === void 0 ? void 0 : _l.disconnect) === null || _m === void 0 ? void 0 : _m.length) !== 0 && ((_p = (_o = data.origin) === null || _o === void 0 ? void 0 : _o.connect) === null || _p === void 0 ? void 0 : _p.length) === 0;
-            if (isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved)
-                throw new ValidationError('Origin is required for articles');
             if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
                 const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
                 const subscribedAdministrators = administrators.length > 0 ? administrators.filter(admin => subscriberIds.includes(admin.id)) : await strapi.query("admin::user").findMany({

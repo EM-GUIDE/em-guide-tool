@@ -104,11 +104,14 @@ export default {
 
     if (!article) return;
 
+    // * Guard clause to prevent adding or publishing an article without an origin
+    const isWithoutAndNotAddingOrigin = !article.origin && data.origin?.connect?.length === 0;
+    const isUpdatedWithOriginRemoved = data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0;
+
+    if (isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved) throw new ValidationError('Origin is required for articles');
+
     // * If the article is not published
     if (!article.publishedAt) {
-      // * Guard clause to prevent publishing an article without an origin
-      if ((!article.origin && !data.origin?.connect) || article.origin && data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0) throw new ValidationError('Origin is required to create an article');
-
       const isNotUpdatingExistingOrigin = !data.origin && !newRawData.origin
 
       administrators = await strapi.query("admin::user").findMany();
@@ -136,11 +139,6 @@ export default {
 
       // * If the article is published
     } else {
-      const isWithoutAndNotAddingOrigin = !article.origin && data.origin?.connect?.length === 0;
-      const isUpdatedWithOriginRemoved = data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0;
-
-      if(isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved) throw new ValidationError('Origin is required for articles');
-
       if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
         const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
 
