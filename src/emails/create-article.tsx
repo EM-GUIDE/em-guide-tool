@@ -17,18 +17,20 @@ interface CreateArticleEmailTemplateProps {
   articleTitle: string;
   name: string;
   link: string;
+  originName?: string;
 }
 
 export const createArticleEmailTemplate = ({
   articleTitle,
   name,
   link,
+  originName
 }: CreateArticleEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
         <MjmlTitle>EM GUIDE | New article created</MjmlTitle>
-        <MjmlPreview>{name} has created a new article...</MjmlPreview>
+        <MjmlPreview>{originName} has published a new article:...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">

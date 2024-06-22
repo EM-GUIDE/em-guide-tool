@@ -27,6 +27,7 @@ const sendEmails = async (
     language?: Language;
     link: string;
     shareUrls?: string[];
+    originName?: string
   }) => string,
   title: string,
   article: {
@@ -38,7 +39,8 @@ const sendEmails = async (
     firstname: string;
     email: string;
   },
-  shareUrls?: string[]
+  shareUrls?: string[],
+  originName?: string
 ) => {
   const promises = recipients.map(async (recipient) => {
     await strapi.plugins["email"].services.email.send({
@@ -50,7 +52,8 @@ const sendEmails = async (
         articleTitle: article.title,
         name: `${creatorOrUpdater.firstname}`,
         link: `${env("URL")}admin/content-manager/collection-types/api::article.article/${article.id}`,
-        shareUrls: shareUrls
+        shareUrls: shareUrls,
+        originName: originName
       }),
     });
   });
@@ -64,6 +67,10 @@ const getNewArticleUrls = (newRawData: any): string[] => {
 export default {
   async beforeCreate(event) {
     const { data } = event.params;
+
+    const isWithoutOrigin = data.origin?.connect?.length === 0;
+
+    if (isWithoutOrigin) throw new ValidationError('Origin is required to create an article');
 
     // subscribe the creator to the article by default
     data.subscribers.connect = [data.createdBy]
@@ -91,14 +98,18 @@ export default {
     const numberOfCurrrentSharedUrls = article.urls?.length
     const numberOfUpdatedSharedUrls = data.urls?.length
 
-    const isNotUpdatingExistingOrigin = data.origin?.connect?.length === 0 && data.origin?.disconnect?.length === 0;
+    // const isNotUpdatingExistingOrigin = data.origin?.connect?.length === 0 && data.origin?.disconnect?.length === 0;
 
     let administrators = []
 
     if (!article) return;
 
+    // * If the article is not published
     if (!article.publishedAt) {
+      // * Guard clause to prevent publishing an article without an origin
       if ((!article.origin && !data.origin?.connect) || article.origin && data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0) throw new ValidationError('Origin is required to create an article');
+
+      const isNotUpdatingExistingOrigin = !data.origin && !newRawData.origin
 
       administrators = await strapi.query("admin::user").findMany();
 
@@ -108,49 +119,55 @@ export default {
 
       const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
 
-      const originName = (await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id)).name;
+      const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id);
 
       await sendEmails(
         emailAddresses,
         createArticleEmailTemplate,
-        `EM GUIDE: ${originName} has published a new article: ${article.title}`,
+        `EM GUIDE: ${origin.name} has published a new article: ${article.title}`,
         {
           id: Number(article.id),
           title: article.title
         },
         creator,
+        null,
+        origin.name
       );
 
+      // * If the article is published
     } else {
+      const isWithoutAndNotAddingOrigin = !article.origin && data.origin?.connect?.length === 0;
+      const isUpdatedWithOriginRemoved = data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0;
 
-    }
+      if(isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved) throw new ValidationError('Origin is required for articles');
 
-    if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
-      const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
+      if (numberOfUpdatedSharedUrls > numberOfCurrrentSharedUrls) {
+        const subscriberIds = article.subscribers.map((subscriber) => subscriber.id);
 
-      const subscribedAdministrators = administrators.length > 0 ? administrators.filter(admin => subscriberIds.includes(admin.id)) : await strapi.query("admin::user").findMany({
-        where: {
-          id: {
-            $in: subscriberIds,
+        const subscribedAdministrators = administrators.length > 0 ? administrators.filter(admin => subscriberIds.includes(admin.id)) : await strapi.query("admin::user").findMany({
+          where: {
+            id: {
+              $in: subscriberIds,
+            },
           },
-        },
-      });
+        });
 
-      const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
+        const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
 
-      const newArticleUrls = getNewArticleUrls(newRawData);
+        const newArticleUrls = getNewArticleUrls(newRawData);
 
-      await sendEmails(
-        subscribedAdminEmailAddresses,
-        createArticleShareEmailTemplate,
-        `EM GUIDE: New share on ${truncateText({ text: article.title })}`,
-        {
-          id: newRawData.id,
-          title: article.title,
-        },
-        data.updatedBy,
-        newArticleUrls
-      );
+        await sendEmails(
+          subscribedAdminEmailAddresses,
+          createArticleShareEmailTemplate,
+          `EM GUIDE: New share on ${truncateText({ text: article.title })}`,
+          {
+            id: newRawData.id,
+            title: article.title,
+          },
+          data.updatedBy,
+          newArticleUrls
+        );
+      }
     }
   }
 

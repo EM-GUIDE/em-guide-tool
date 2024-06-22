@@ -38,7 +38,7 @@ exports.default = ({ strapi }) => ({
         if (!article) {
             throw new Error('Article not found');
         }
-        await sendEmails(emailAddresses, comment_added_1.commentAddedEmailTemplate, `EM GUIDE: Article ${article.title} has a new comment`, article, commenter);
+        await sendEmails(emailAddresses, comment_added_1.commentAddedEmailTemplate, `EM GUIDE: New comment on ${article.title}`, article, commenter);
         return await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.create('plugin::admin-comments.comment', request));
     }
 });
