@@ -8,6 +8,7 @@ import usersPermissions from "@strapi/plugin-users-permissions/strapi-admin";
 import paperTrail from "strapi-plugin-paper-trail/strapi-admin";
 import adminEmailNotifications from "../../src/plugins/admin-email-notifications/strapi-admin";
 import adminComments from "../../src/plugins/admin-comments/strapi-admin";
+import stats from "../../src/plugins/stats/strapi-admin";
 import { renderAdmin } from "@strapi/strapi/admin";
 
 renderAdmin(document.getElementById("strapi"), {
@@ -18,5 +19,6 @@ renderAdmin(document.getElementById("strapi"), {
     "paper-trail": paperTrail,
     "admin-email-notifications": adminEmailNotifications,
     "admin-comments": adminComments,
+    stats: stats,
   },
 });

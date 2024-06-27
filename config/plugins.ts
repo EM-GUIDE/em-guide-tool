@@ -31,5 +31,9 @@ export default ({ env }) => ({
     config: {
       defaultDepth: 10
     }
-  }
+  },
+  'stats': {
+    enabled: true,
+    resolve: './src/plugins/stats'
+  },
 });

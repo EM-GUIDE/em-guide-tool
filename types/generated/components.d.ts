@@ -24,9 +24,15 @@ export interface UrlOriginalUrls extends Schema.Component {
   info: {
     displayName: 'originalUrls';
     icon: 'alien';
+    description: '';
   };
   attributes: {
     url: Attribute.String;
+    magazine: Attribute.Relation<
+      'url.original-urls',
+      'oneToOne',
+      'api::magazine.magazine'
+    >;
   };
 }
 

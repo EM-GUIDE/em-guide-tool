@@ -29,16 +29,30 @@ const getNewArticleUrls = (newRawData) => {
 };
 exports.default = {
     async beforeCreate(event) {
-        var _a, _b;
+        var _a, _b, _c, _d;
+        console.log('beforeCreate');
         const { data } = event.params;
         const isWithoutOrigin = ((_b = (_a = data.origin) === null || _a === void 0 ? void 0 : _a.connect) === null || _b === void 0 ? void 0 : _b.length) === 0;
         if (isWithoutOrigin)
             throw new ValidationError('Origin is required to create an article');
+        const ctx = strapi.requestContext.get();
+        const newRawData = ctx.request.body;
+        console.log(data.urls);
+        console.log(newRawData.urls);
+        const hasUrlsWithoutMagazine = ((_c = newRawData === null || newRawData === void 0 ? void 0 : newRawData.urls) === null || _c === void 0 ? void 0 : _c.length) > 0 && ((_d = newRawData === null || newRawData === void 0 ? void 0 : newRawData.urls) === null || _d === void 0 ? void 0 : _d.some(url => url.magazine.connect.length === 0));
+        if (hasUrlsWithoutMagazine)
+            throw new ValidationError('All shared urls need to have a magazine associated with them');
+        console.log(data);
         // subscribe the creator to the article by default
+        console.log(!data.subscribers);
+        console.log(data.subscribers);
+        if (!data.subscribers)
+            return;
         data.subscribers.connect = [data.createdBy];
     },
     async beforeUpdate(event) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        console.log('beforeUpdate');
         const { data, where } = event.params;
         const article = await strapi.entityService.findOne('api::article.article', where.id, {
             populate: {
@@ -56,22 +70,49 @@ exports.default = {
         const newRawData = ctx.request.body;
         const numberOfCurrrentSharedUrls = (_a = article.urls) === null || _a === void 0 ? void 0 : _a.length;
         const numberOfUpdatedSharedUrls = (_b = data.urls) === null || _b === void 0 ? void 0 : _b.length;
-        // const isNotUpdatingExistingOrigin = data.origin?.connect?.length === 0 && data.origin?.disconnect?.length === 0;
+        console.log({ article });
+        console.log({ data });
+        console.log({ newRawData });
+        console.log({ dataUrls: data.urls });
+        console.log({ newRawDataUurls: newRawData.urls });
+        // return
         let administrators = [];
         if (!article)
             return;
         // * Guard clause to prevent adding or publishing an article without an origin
+        const isUnpublishingArticle = article.publishedAt !== null && data.publishedAt === null;
+        console.log({ isUnpublishingArticle });
         const isWithoutAndNotAddingOrigin = !article.origin && ((_d = (_c = data.origin) === null || _c === void 0 ? void 0 : _c.connect) === null || _d === void 0 ? void 0 : _d.length) === 0;
         const isUpdatedWithOriginRemoved = ((_f = (_e = data.origin) === null || _e === void 0 ? void 0 : _e.disconnect) === null || _f === void 0 ? void 0 : _f.length) !== 0 && ((_h = (_g = data.origin) === null || _g === void 0 ? void 0 : _g.connect) === null || _h === void 0 ? void 0 : _h.length) === 0;
+        console.log({
+            isWithoutAndNotAddingOrigin,
+            isUpdatedWithOriginRemoved
+        });
         if (isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved)
             throw new ValidationError('Origin is required for articles');
+        const isDisconnectingUrlMagazineWithoutAddingNewOne = (_j = newRawData.urls) === null || _j === void 0 ? void 0 : _j.some(url => { var _a, _b; return ((_a = url.magazine.disconnect) === null || _a === void 0 ? void 0 : _a.length) > 0 && ((_b = url.magazine.connect) === null || _b === void 0 ? void 0 : _b.length) === 0; });
+        console.log({
+            isDisconnectingUrlMagazineWithoutAddingNewOne
+        });
+        if (!isUnpublishingArticle && isDisconnectingUrlMagazineWithoutAddingNewOne)
+            throw new ValidationError('All shared urls need to have a magazine associated with them');
+        const hasUrlsWithoutMagazine = ((_k = newRawData === null || newRawData === void 0 ? void 0 : newRawData.urls) === null || _k === void 0 ? void 0 : _k.length) > 0 && ((_l = newRawData === null || newRawData === void 0 ? void 0 : newRawData.urls) === null || _l === void 0 ? void 0 : _l.some(url => url.magazine.connect.length === 0));
+        if (hasUrlsWithoutMagazine)
+            throw new ValidationError('All shared urls need to have a magazine associated with them');
         // * If the article is not published
         if (!article.publishedAt) {
-            const isNotUpdatingExistingOrigin = !data.origin && !newRawData.origin;
+            // ! TODO when you try to update an article in draft that has shared urls without a magazine or you try to disconnect the magazine and save it
+            const isNotUpdatingExistingOrigin = (article.origin && !data.origin) || (!(data.origin.disconnect.length === 0) && !newRawData.origin);
+            console.log({ isNotUpdatingExistingOrigin });
+            // console.log(article.origin)
+            // console.log(data.origin)
+            // console.log(newRawData.origin)
+            // ! If origin is already added 
+            const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : (_m = data.origin) === null || _m === void 0 ? void 0 : _m.connect[0].id);
             administrators = await strapi.query("admin::user").findMany();
+            console.log(data);
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
-            const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : (_j = data.origin) === null || _j === void 0 ? void 0 : _j.connect[0].id);
             await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${origin.name} has published a new article: ${article.title}`, {
                 id: Number(article.id),
                 title: article.title
