@@ -10,7 +10,8 @@
     "build": "strapi build",
     "strapi": "strapi",
     "prebuild:email": "cd src/plugins/admin-email-notifications && yarn build",
-    "prebuild:comments": "cd src/plugins/admin-comments && yarn build"
+    "prebuild:comments": "cd src/plugins/admin-comments && yarn build",
+    "prebuild:stats": "cd src/plugins/stats && yarn build"
   },
   "dependencies": {
     "@faire/mjml-react": "^3.3.0",
