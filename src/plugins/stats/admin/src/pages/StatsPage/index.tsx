@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@strapi/design-system";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import useSWR from 'swr'
 
 import {
   Chart as ChartJS,
@@ -57,62 +57,7 @@ ChartJS.register(
 const StatsPage = () => {
   const { get } = getFetchClient();
 
-  const getData = async () => {
-    const res = await get(`/${pluginId}/data`);
-    console.log(res.data);
-    return res.data;
-  };
-
-  const queryClient = useQueryClient();
-
-  const { isPending, isError, data, error } = useQuery({
-    queryKey: ["magazines", "articles", "shares", "allShares"],
-    queryFn: getData,
-  });
-
-  const calculateShares = (magazines: any[]): Map<number, number> => {
-    const sharesCount = new Map<number, number>();
-
-    magazines.forEach((magazine) => {
-      magazine.articles?.forEach((article: any) => {
-        article.urls?.forEach((url: any) => {
-          const sourceMagazineName = url.magazine.name;
-          if (!sharesCount.has(sourceMagazineName)) {
-            sharesCount.set(sourceMagazineName, 0);
-          }
-          sharesCount.set(
-            sourceMagazineName,
-            sharesCount.get(sourceMagazineName)! + 1
-          );
-        });
-      });
-    });
-
-    return sharesCount;
-  };
-
-  function calculateSharesWithBreakdown(magazines: any[]): any {
-    const sharesBreakdownByName: any = {};
-
-    magazines.forEach((targetMagazine: any) => {
-      const targetMagazineName = targetMagazine.name;
-      const breakdownByName: any = {};
-
-      targetMagazine.articles?.forEach((article: any) => {
-        article.urls?.forEach((url: any) => {
-          const sourceMagazineName = url.magazine.name;
-          if (!breakdownByName[sourceMagazineName]) {
-            breakdownByName[sourceMagazineName] = 0;
-          }
-          breakdownByName[sourceMagazineName]++;
-        });
-      });
-
-      sharesBreakdownByName[targetMagazineName] = breakdownByName;
-    });
-
-    return sharesBreakdownByName;
-  }
+  const { data, error, isLoading } = useSWR(`/${pluginId}/data`, get)
 
   const arrayToMap = (array: [number, any][]): Map<number, any> => {
     const deserializedMap = new Map<number, any>();
@@ -122,16 +67,21 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  console.log(data);
+  console.log(data?.data);
 
+  const queryData = data?.data;
+  
   let decodedAllShares;
-
-  if (data?.allShares) {
-    decodedAllShares = arrayToMap(data?.allShares);
+  
+  if (queryData?.allShares) {
+    decodedAllShares = arrayToMap(queryData?.allShares);
     console.log(decodedAllShares);
-
+    
     console.log(decodedAllShares.get(1));
   }
+  
+  if (error) return <div>failed to load</div>
+
   return (
     <>
       <Box background="neutral100">
@@ -154,8 +104,8 @@ const StatsPage = () => {
           }}
         >
           <GridItem col={6} s={12}>
-            {isPending && <Loader />}
-            {data?.articles && (
+            {isLoading && <Loader />}
+            {queryData?.articles && (
               <Box
                 background="neutral0"
                 hasRadius
@@ -167,15 +117,15 @@ const StatsPage = () => {
                 </Typography>
                 <Flex alignItems="center" justifyContent="center" padding={8}>
                   <Typography as="h3" variant="beta">
-                    Total number of articles: {data?.articles.length}
+                    Total number of articles: {queryData?.articles.length}
                   </Typography>
                 </Flex>
               </Box>
             )}
           </GridItem>
           <GridItem col={6} s={12}>
-            {isPending && <Loader />}
-            {data?.magazines && data?.magazines?.length > 0 && (
+            {isLoading && <Loader />}
+            {queryData?.magazines && queryData?.magazines?.length > 0 && (
               <Box
                 background="neutral0"
                 hasRadius
@@ -229,11 +179,11 @@ const StatsPage = () => {
                     },
                   }}
                   data={{
-                    labels: data?.magazines?.map((item: any) => item.name),
+                    labels: queryData?.magazines?.map((item: any) => item.name),
                     datasets: [
                       {
                         label: "Total number of articles",
-                        data: data?.magazines?.map(
+                        data: queryData?.magazines?.map(
                           (item: any) => item.articles.length
                         ),
                         backgroundColor: "rgb(217, 216, 255)",
@@ -261,12 +211,12 @@ const StatsPage = () => {
             mobile: 1,
           }}
         >
-          {data?.magazines &&
+          {queryData?.magazines &&
             decodedAllShares &&
-            data.magazines.map((magazine: any) => (
+            queryData.magazines.map((magazine: any) => (
               <GridItem key={magazine.id} col={12} s={12}>
-                {isPending && <Loader />}
-                {data?.articles && (
+                {isLoading && <Loader />}
+                {queryData?.articles && (
                   <Box
                     background="neutral0"
                     hasRadius
@@ -296,7 +246,7 @@ const StatsPage = () => {
                               Share of other articles:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
-                                  ?.totalMadeShares
+                                  ?.madeSharesCount
                               }
                             </Typography>
                           </Box>
@@ -307,7 +257,7 @@ const StatsPage = () => {
                                 colCount={2}
                                 rowCount={
                                   decodedAllShares.get(magazine.id)
-                                    .totalMadeShares
+                                    .madeSharesCount
                                 }
                               >
                                 <Thead>
@@ -354,7 +304,7 @@ const StatsPage = () => {
                               Shares by others:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
-                                  ?.totalReceivedShares
+                                  ?.receivedSharesCount
                               }
                             </Typography>
                           </Box>
@@ -365,7 +315,7 @@ const StatsPage = () => {
                                 colCount={2}
                                 rowCount={
                                   decodedAllShares.get(magazine.id)
-                                    .totalReceivedShares
+                                    .receivedSharesCount
                                 }
                               >
                                 <Thead>

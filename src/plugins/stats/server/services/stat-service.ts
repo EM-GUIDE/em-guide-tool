@@ -62,8 +62,9 @@ interface ShareDetails {
 
 interface MagazineShares {
   name: string;
-  totalReceivedShares: number;
-  totalMadeShares: number;
+  receivedSharesCount: number;
+  madeSharesCount: number;
+  articlesSharedByOtherMagazinesCount: number;
   receivedShares: ShareDetails[]; // Tracks the total number of share actions towards this magazine's articles
   madeShares: ShareDetails[]; // Tracks articles of other magazines shared by this magazine
 }
@@ -96,10 +97,15 @@ function calculateAllShares(articles: any[], magazines: any[]) {
   magazines.forEach((magazine) => {
     sharesMap.set(magazine.id, {
       name: magazine.name,
-      totalReceivedShares: 0,
-      totalMadeShares: 0,
+      receivedSharesCount: 0,
+      madeSharesCount: 0,
       receivedShares: [],
       madeShares: [],
+      articlesSharedByOtherMagazinesCount: 0
+    });
+
+    magazine.articles?.forEach((article: any) => {
+      if (article.urls && article.urls?.length > 0) sharesMap.get(magazine.id)!.articlesSharedByOtherMagazinesCount += 1;
     });
   });
 
@@ -109,32 +115,30 @@ function calculateAllShares(articles: any[], magazines: any[]) {
       const sharedMagazine = sharesMap.get(article.origin.id);
 
       if (sharingMagazine) {
-        sharingMagazine.totalMadeShares += 1;
+        sharingMagazine.madeSharesCount += 1;
         sharingMagazine.madeShares.push({
           name: article.origin.name,
           id: article.origin.id,
         });
-        // Update the Map with the modified object
         sharesMap.set(url.magazine.id, sharingMagazine);
       }
 
       if (sharedMagazine) {
-        sharedMagazine.totalReceivedShares += 1;
+        sharedMagazine.receivedSharesCount += 1;
         sharedMagazine.receivedShares.push({
           name: url.magazine.name,
           id: url.magazine.id,
         });
-        // Update the Map with the modified object
         sharesMap.set(article.origin.id, sharedMagazine);
       }
     });
   });
 
-  // Summarize shares and update the Map
   sharesMap.forEach((value, key) => {
     const summarizedMadeShares = summarizeArray(value.madeShares);
     const summarizedReceivedShares = summarizeArray(value.receivedShares);
     const updatedValue = { ...value, madeShares: summarizedMadeShares, receivedShares: summarizedReceivedShares };
+
     sharesMap.set(key, updatedValue);
   });
 
