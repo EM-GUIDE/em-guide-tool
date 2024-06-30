@@ -9,10 +9,14 @@
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi",
+    "install": "yarn build",
     "prebuild:email": "cd src/plugins/admin-email-notifications && yarn build",
     "prebuild:comments": "cd src/plugins/admin-comments && yarn build",
     "prebuild:stats": "cd src/plugins/stats && yarn build"
   },
+  "workspaces": [
+    "src/plugins/*"
+  ],
   "dependencies": {
     "@faire/mjml-react": "^3.3.0",
     "@strapi/design-system": "^1.19.0",
