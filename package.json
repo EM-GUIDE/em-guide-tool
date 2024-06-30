@@ -34,7 +34,8 @@
     "react-router-dom": "5.3.4",
     "strapi-plugin-paper-trail": "^0.6.í",
     "strapi-plugin-populate-deep": "^3.0.1",
-    "styled-components": "5.3.3"
+    "styled-components": "5.3.3",
+    "swr": "^2.2.5"
   },
   "author": {
     "name": "revnandi"
