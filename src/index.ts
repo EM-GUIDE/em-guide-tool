@@ -90,6 +90,10 @@ export default {
         for (let k = 0; k < articles[i].urls.length; k++) {
           if (!articles[i].urls[k].magazine) {
             const url = articles[i].urls[k].url;
+            if(!url) {
+              console.log('No url found for article: ' + articles[i].name + ' id: '  + articles[i].urls[k].id)
+              return;
+            }
             const matchedMagazine = await findMagazineIdByUrl(url);
             if (matchedMagazine) {
               console.log(`Found magazine ${matchedMagazine.name} for url ${url}`);
