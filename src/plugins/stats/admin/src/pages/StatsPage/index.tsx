@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@strapi/design-system";
 
-import useSWR from 'swr'
+import useSWR from "swr";
 
 import {
   Chart as ChartJS,
@@ -57,7 +57,7 @@ ChartJS.register(
 const StatsPage = () => {
   const { get } = getFetchClient();
 
-  const { data, error, isLoading } = useSWR(`/${pluginId}/data`, get)
+  const { data, error, isLoading } = useSWR(`/${pluginId}/data`, get);
 
   const arrayToMap = (array: [number, any][]): Map<number, any> => {
     const deserializedMap = new Map<number, any>();
@@ -67,20 +67,22 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  console.log(data?.data);
+  const monthCounts = Array(12).fill(0);
+
+  // console.log(data?.data);
 
   const queryData = data?.data;
-  
+
   let decodedAllShares;
-  
+
   if (queryData?.allShares) {
     decodedAllShares = arrayToMap(queryData?.allShares);
-    console.log(decodedAllShares);
-    
-    console.log(decodedAllShares.get(1));
+    // console.log(decodedAllShares);
+
+    // console.log(decodedAllShares.get(1));
   }
-  
-  if (error) return <div>failed to load</div>
+
+  if (error) return <div>failed to load</div>;
 
   return (
     <>
@@ -103,7 +105,7 @@ const StatsPage = () => {
             mobile: 1,
           }}
         >
-          <GridItem col={6} s={12}>
+          <GridItem col={12} s={12}>
             {isLoading && <Loader />}
             {queryData?.articles && (
               <Box
@@ -198,22 +200,114 @@ const StatsPage = () => {
               </Box>
             )}
           </GridItem>
+          <GridItem col={6} s={12}>
+            {isLoading && <Loader />}
+            {queryData?.magazines && queryData?.magazines?.length > 0 && (
+              <Box
+                background="neutral0"
+                hasRadius
+                padding={[2, 2, 1]}
+                shadow="tableShadow"
+              >
+                <Bar
+                  options={{
+                    responsive: true,
+                    scales: {
+                      x: {
+                        stacked: true,
+                        grid: {
+                          display: false,
+                        },
+                      },
+                      y: {
+                        display: false,
+                        grid: {
+                          display: false,
+                        },
+                      },
+                    },
+                    plugins: {
+                      title: {
+                        display: true,
+                        text: "Articles By Month",
+                      },
+                      datalabels: {
+                        color: "rgb(123, 121, 255)",
+                        font: {
+                          weight: "bold",
+                          size: 14,
+                        },
+                      },
+                      tooltip: {
+                        enabled: true,
+                        callbacks: {
+                          label: function (context) {
+                            let label = context.dataset.label || "";
+                            if (label) {
+                              label += ": ";
+                            }
+                            if (context.parsed.y !== null) {
+                              label += context.parsed.y;
+                            }
+                            return label;
+                          },
+                        },
+                      },
+                    },
+                  }}
+                  data={{
+                    labels: [
+                      "jan",
+                      "feb",
+                      "mar",
+                      "apr",
+                      "may",
+                      "jun",
+                      "jul",
+                      "aug",
+                      "sep",
+                      "oct",
+                      "nov",
+                      "dec",
+                    ],
+                    datasets: [
+                      {
+                        label: "Total number of articles",
+                        data: Array.from({ length: 12 }, () => 0).map(
+                          (_, i) =>
+                            queryData?.articles.filter(
+                              (a: any) =>
+                                a.publishedAt !== null &&
+                                new Date(a.publishedAt).getMonth() === i
+                            ).length
+                        ),
+                        backgroundColor: "rgb(217, 216, 255)",
+                        borderColor: "rgb(123, 121, 255)",
+                        borderWidth: 2,
+                        hoverBackgroundColor: "rgb(217, 216, 255)",
+                        borderRadius: 4,
+                      },
+                    ],
+                  }}
+                />
+              </Box>
+            )}
+          </GridItem>
         </Grid>
         <Box paddingTop={8} paddingBottom={4}>
           <Typography as="h3" variant="beta">
             Magazines
           </Typography>
         </Box>
-        <Grid
-          gap={{
-            desktop: 5,
-            tablet: 2,
-            mobile: 1,
-          }}
-        >
-          {queryData?.magazines &&
-            decodedAllShares &&
-            queryData.magazines.map((magazine: any) => (
+        {queryData?.magazines && decodedAllShares && (
+          <Grid
+            gap={{
+              desktop: 5,
+              tablet: 2,
+              mobile: 1,
+            }}
+          >
+            {queryData.magazines.map((magazine: any) => (
               <GridItem key={magazine.id} col={12} s={12}>
                 {isLoading && <Loader />}
                 {queryData?.articles && (
@@ -231,19 +325,21 @@ const StatsPage = () => {
                     <Divider />
                     <Flex
                       alignItems="normal"
-                      // justifyContent="center"
                       padding={8}
                       gap={4}
                       direction="column"
                     >
-                      <Typography as="h3" variant="beta">
-                        Total number of articles: {magazine.articles.length}
-                      </Typography>
                       <Grid gap={6}>
                         <GridItem col={6} s={12}>
+                          <Box marginBottom={2}>
+                            <Typography as="h3" variant="beta">
+                              Number of articles: {magazine.articles.length}
+                            </Typography>
+                          </Box>
+
                           <Box marginBottom={4}>
                             <Typography as="h3" variant="beta">
-                              Share of other articles:{" "}
+                              Shared articles:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.madeSharesCount
@@ -299,12 +395,22 @@ const StatsPage = () => {
                           )}
                         </GridItem>
                         <GridItem col={6} s={12}>
-                          <Box marginBottom={4}>
+                          <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
-                              Shares by others:{" "}
+                              All shares by others:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.receivedSharesCount
+                              }
+                            </Typography>
+                          </Box>
+
+                          <Box marginBottom={4}>
+                            <Typography as="h3" variant="beta">
+                              Number of articles with shares:{" "}
+                              {
+                                decodedAllShares.get(magazine.id)
+                                  ?.articlesSharedByOtherMagazinesCount
                               }
                             </Typography>
                           </Box>
@@ -320,7 +426,6 @@ const StatsPage = () => {
                               >
                                 <Thead>
                                   <Tr>
-  
                                     <Th>
                                       <Typography variant="sigma">
                                         Name
@@ -363,7 +468,8 @@ const StatsPage = () => {
                 )}
               </GridItem>
             ))}
-        </Grid>
+          </Grid>
+        )}
       </ContentLayout>
     </>
   );

@@ -142,7 +142,7 @@ function calculateAllShares(articles: any[], magazines: any[]) {
     sharesMap.set(key, updatedValue);
   });
 
-  console.log(sharesMap);
+  // console.log(sharesMap);
 
   return Array.from(sharesMap.entries());
 }
