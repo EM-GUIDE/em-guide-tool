@@ -3,58 +3,6 @@ import { env, getAbsoluteServerUrl } from "@strapi/utils";
 import type { Attribute, Shared } from "@strapi/strapi";
 
 export type Article = Attribute.GetValues<'api::article.article'>;
-interface summarizedSharesItem {
-  sum: number;
-  byMagazine: {
-    id: number;
-    name: string;
-    count: number;
-  }[];
-}
-
-function calculateTotalAndBreakdownByMagazine(magazines: any[]): Record<string, summarizedSharesItem> {
-  const resultMap: Record<string, summarizedSharesItem> = {};
-
-  magazines.forEach((targetMagazine: any) => {
-    const targetMagazineName: string = targetMagazine.name;
-    let sum = 0;
-    const byMagazine: summarizedSharesItem['byMagazine'] = [];
-
-    targetMagazine.articles?.forEach((article: any) => {
-
-      article.urls?.forEach((url: any) => {
-        const sourceMagazine = url.magazine;
-        sum++;
-
-        // console.log(url)
-
-
-        const existingEntry = byMagazine.find(
-          (entry: any) => entry.magazineId === sourceMagazine.id
-        );
-
-        if (existingEntry) {
-
-          existingEntry.count++;
-        } else {
-
-          byMagazine.push({
-            id: sourceMagazine.id,
-            name: sourceMagazine.name,
-            count: 1,
-          });
-        }
-      });
-    });
-
-    resultMap[targetMagazineName] = {
-      sum: sum,
-      byMagazine: byMagazine,
-    };
-  });
-
-  return resultMap;
-}
 interface ShareDetails {
   id: number;
   name: string;
@@ -174,13 +122,9 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         }
       }
     });
-
-
-    // @ts-expect-error
-    const shares = calculateTotalAndBreakdownByMagazine(magazines)
     // @ts-expect-error
     const allShares = calculateAllShares(articles, magazines);
 
-    return { articles, magazines, shares, allShares }
+    return { articles, magazines, allShares }
   },
 });

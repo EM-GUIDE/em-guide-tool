@@ -67,8 +67,6 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  const monthCounts = Array(12).fill(0);
-
   // console.log(data?.data);
 
   const queryData = data?.data;
@@ -77,7 +75,7 @@ const StatsPage = () => {
 
   if (queryData?.allShares) {
     decodedAllShares = arrayToMap(queryData?.allShares);
-    // console.log(decodedAllShares);
+    console.log(decodedAllShares);
 
     // console.log(decodedAllShares.get(1));
   }
@@ -117,9 +115,23 @@ const StatsPage = () => {
                 <Typography as="h3" variant="beta">
                   Articles
                 </Typography>
-                <Flex alignItems="center" justifyContent="center" padding={8}>
+                <Flex
+                  alignItems="center"
+                  justifyContent="center"
+                  direction="column"
+                  padding={8}
+                  gap={4}
+                >
                   <Typography as="h3" variant="beta">
                     Total number of articles: {queryData?.articles.length}
+                  </Typography>
+                  <Typography as="h3" variant="beta">
+                    Total number of shares:{" "}
+                    {queryData?.articles.reduce(
+                      (acc: any, article: any) =>
+                        acc + (article.urls?.length ?? 0),
+                      0
+                    )}
                   </Typography>
                 </Flex>
               </Box>
@@ -155,6 +167,10 @@ const StatsPage = () => {
                       title: {
                         display: true,
                         text: "Articles By Magazine",
+                        font: {
+                          weight: "bold",
+                          size: 14,
+                        },
                       },
                       datalabels: {
                         color: "rgb(123, 121, 255)",
@@ -230,6 +246,10 @@ const StatsPage = () => {
                       title: {
                         display: true,
                         text: "Articles By Month",
+                        font: {
+                          weight: "bold",
+                          size: 14,
+                        },
                       },
                       datalabels: {
                         color: "rgb(123, 121, 255)",
@@ -365,7 +385,7 @@ const StatsPage = () => {
                                     </Th>
                                     <Th>
                                       <Typography variant="sigma">
-                                        Number of shares made to others
+                                        Number of articles this mag shares from an other mag
                                       </Typography>
                                     </Th>
                                   </Tr>
