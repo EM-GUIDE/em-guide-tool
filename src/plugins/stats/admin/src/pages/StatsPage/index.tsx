@@ -67,7 +67,7 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  console.log(data?.data);
+  // console.log(data?.data);
 
   const queryData = data?.data;
 
@@ -75,7 +75,7 @@ const StatsPage = () => {
 
   if (queryData?.allShares) {
     decodedAllShares = arrayToMap(queryData?.allShares);
-    console.log(decodedAllShares);
+    // console.log(decodedAllShares);
 
     // console.log(decodedAllShares.get(1));
   }
