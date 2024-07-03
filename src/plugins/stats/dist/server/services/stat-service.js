@@ -1,38 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function calculateTotalAndBreakdownByMagazine(magazines) {
-    const resultMap = {};
-    magazines.forEach((targetMagazine) => {
-        var _a;
-        const targetMagazineName = targetMagazine.name;
-        let sum = 0;
-        const byMagazine = [];
-        (_a = targetMagazine.articles) === null || _a === void 0 ? void 0 : _a.forEach((article) => {
-            var _a;
-            (_a = article.urls) === null || _a === void 0 ? void 0 : _a.forEach((url) => {
-                const sourceMagazine = url.magazine;
-                sum++;
-                // console.log(url)
-                const existingEntry = byMagazine.find((entry) => entry.magazineId === sourceMagazine.id);
-                if (existingEntry) {
-                    existingEntry.count++;
-                }
-                else {
-                    byMagazine.push({
-                        id: sourceMagazine.id,
-                        name: sourceMagazine.name,
-                        count: 1,
-                    });
-                }
-            });
-        });
-        resultMap[targetMagazineName] = {
-            sum: sum,
-            byMagazine: byMagazine,
-        };
-    });
-    return resultMap;
-}
 function summarizeArray(items) {
     const countsMap = new Map();
     items.forEach(item => {
@@ -56,13 +23,19 @@ function calculateAllShares(articles, magazines) {
             madeSharesCount: 0,
             receivedShares: [],
             madeShares: [],
-            articlesSharedByOtherMagazinesCount: 0
+            articlesSharedByOtherMagazinesCount: 0,
+            articles: []
         });
         (_a = magazine.articles) === null || _a === void 0 ? void 0 : _a.forEach((article) => {
             var _a;
             if (article.urls && ((_a = article.urls) === null || _a === void 0 ? void 0 : _a.length) > 0)
                 sharesMap.get(magazine.id).articlesSharedByOtherMagazinesCount += 1;
         });
+        const magazineEntry = sharesMap.get(magazine.id);
+        if (magazineEntry) {
+            magazineEntry.articles = magazine.articles;
+            sharesMap.set(magazine.id, magazineEntry);
+        }
     });
     articles.forEach((article) => {
         var _a;
@@ -93,7 +66,7 @@ function calculateAllShares(articles, magazines) {
         const updatedValue = { ...value, madeShares: summarizedMadeShares, receivedShares: summarizedReceivedShares };
         sharesMap.set(key, updatedValue);
     });
-    console.log(sharesMap);
+    // console.log(sharesMap);
     return Array.from(sharesMap.entries());
 }
 exports.default = ({ strapi }) => ({
@@ -119,14 +92,12 @@ exports.default = ({ strapi }) => ({
             populate: {
                 origin: true,
                 urls: {
-                    populate: ['magazine']
+                    populate: ['magazine, created_at']
                 }
             }
         }));
         // @ts-expect-error
-        const shares = calculateTotalAndBreakdownByMagazine(magazines);
-        // @ts-expect-error
         const allShares = calculateAllShares(articles, magazines);
-        return { articles, magazines, shares, allShares };
+        return { articles, magazines, allShares };
     },
 });

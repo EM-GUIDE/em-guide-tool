@@ -67,7 +67,7 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  // console.log(data?.data);
+  console.log(data?.data);
 
   const queryData = data?.data;
 
@@ -385,7 +385,8 @@ const StatsPage = () => {
                                     </Th>
                                     <Th>
                                       <Typography variant="sigma">
-                                        Number of articles this mag shares from an other mag
+                                        Number of articles this mag shares from
+                                        an other mag
                                       </Typography>
                                     </Th>
                                   </Tr>
@@ -481,6 +482,116 @@ const StatsPage = () => {
                               </Table>
                             </Box>
                           )}
+                        </GridItem>
+                        <GridItem col={12}>
+                          {isLoading && <Loader />}
+                          {decodedAllShares.get(magazine.id) &&
+                            decodedAllShares.get(magazine.id).articles?.length >
+                              0 && (
+                              <Box
+                                background="neutral0"
+                                hasRadius
+                                padding={[2, 2, 1]}
+                                shadow="tableShadow"
+                              >
+                                <Bar
+                                  height={300}
+                                  options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                      x: {
+                                        stacked: true,
+                                        grid: {
+                                          display: false,
+                                        },
+                                      },
+                                      y: {
+                                        display: false,
+                                        grid: {
+                                          display: false,
+                                        },
+                                      },
+                                    },
+                                    plugins: {
+                                      title: {
+                                        display: true,
+                                        text: "Articles By Month",
+                                        font: {
+                                          weight: "bold",
+                                          size: 14,
+                                        },
+                                      },
+                                      datalabels: {
+                                        color: "rgb(123, 121, 255)",
+                                        font: {
+                                          weight: "bold",
+                                          size: 14,
+                                        },
+                                      },
+                                      tooltip: {
+                                        enabled: true,
+                                        callbacks: {
+                                          label: function (context) {
+                                            let label =
+                                              context.dataset.label || "";
+                                            if (label) {
+                                              label += ": ";
+                                            }
+                                            if (context.parsed.y !== null) {
+                                              label += context.parsed.y;
+                                            }
+                                            return label;
+                                          },
+                                        },
+                                      },
+                                    },
+                                  }}
+                                  data={{
+                                    labels: [
+                                      "jan",
+                                      "feb",
+                                      "mar",
+                                      "apr",
+                                      "may",
+                                      "jun",
+                                      "jul",
+                                      "aug",
+                                      "sep",
+                                      "oct",
+                                      "nov",
+                                      "dec",
+                                    ],
+                                    datasets: [
+                                      {
+                                        label: "Total number of articles",
+                                        data: Array.from(
+                                          { length: 12 },
+                                          () => 0
+                                        ).map(
+                                          (_, i) =>
+                                            decodedAllShares
+                                              .get(magazine.id)
+                                              ?.articles.filter(
+                                                (a: any) =>
+                                                  a.publishedAt !== null &&
+                                                  new Date(
+                                                    a.publishedAt
+                                                  ).getMonth() === i
+                                              ).length
+                                        ),
+                                        backgroundColor: "rgb(217, 216, 255)",
+                                        borderColor: "rgb(123, 121, 255)",
+                                        borderWidth: 2,
+                                        hoverBackgroundColor:
+                                          "rgb(217, 216, 255)",
+                                        borderRadius: 4,
+                                      },
+                                    ],
+                                  }}
+                                />
+                              </Box>
+                            )}
                         </GridItem>
                       </Grid>
                     </Flex>

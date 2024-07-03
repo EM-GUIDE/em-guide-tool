@@ -15,6 +15,7 @@ interface MagazineShares {
   articlesSharedByOtherMagazinesCount: number;
   receivedShares: ShareDetails[]; // Tracks the total number of share actions towards this magazine's articles
   madeShares: ShareDetails[]; // Tracks articles of other magazines shared by this magazine
+  articles: Article[]
 }
 
 interface SummaryItem {
@@ -49,12 +50,19 @@ function calculateAllShares(articles: any[], magazines: any[]) {
       madeSharesCount: 0,
       receivedShares: [],
       madeShares: [],
-      articlesSharedByOtherMagazinesCount: 0
+      articlesSharedByOtherMagazinesCount: 0,
+      articles: []
     });
 
     magazine.articles?.forEach((article: any) => {
       if (article.urls && article.urls?.length > 0) sharesMap.get(magazine.id)!.articlesSharedByOtherMagazinesCount += 1;
     });
+
+    const magazineEntry = sharesMap.get(magazine.id);
+    if (magazineEntry) {
+      magazineEntry.articles = magazine.articles;
+      sharesMap.set(magazine.id, magazineEntry);
+    }
   });
 
   articles.forEach((article) => {
@@ -118,7 +126,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       populate: {
         origin: true,
         urls: {
-          populate: ['magazine']
+          populate: ['magazine, created_at']
         }
       }
     });
