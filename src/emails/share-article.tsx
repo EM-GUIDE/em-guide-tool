@@ -19,22 +19,26 @@ interface CreateTranslationRequestEmailTemplateProps {
   articleTitle: string;
   name: string;
   link: string;
-  shareUrls?: string[];
+  newUrlWithMagazine: {
+    url: string;
+    magazine: string;
+  };
 }
 
 export const createArticleShareEmailTemplate = ({
   articleTitle,
   name,
   link,
-  shareUrls,
+  newUrlWithMagazine,
 }: CreateTranslationRequestEmailTemplateProps) => {
-  console.log(shareUrls);
+  console.log(newUrlWithMagazine);
 
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
         <MjmlTitle>
-          EM GUIDE | New share on {truncateText({ text: articleTitle })}
+          EM GUIDE | {newUrlWithMagazine.magazine} has shared your article{" "}
+          {truncateText({ text: articleTitle })}
         </MjmlTitle>
         <MjmlPreview>
           New share on {truncateText({ text: articleTitle })}
@@ -68,18 +72,17 @@ export const createArticleShareEmailTemplate = ({
             New shared URLs on <i>{articleTitle}</i>.
           </MjmlText>
           <MjmlSpacer height="16px" />
-          {shareUrls &&
-            shareUrls.map((url) => (
-              <MjmlText
-                line-height="1.5"
-                font-size="16px"
-                color="#4A4A6A"
-                font-family="sans-serif"
-                paddingBottom="8px"
-              >
-                {url}
-              </MjmlText>
-            ))}
+          {newUrlWithMagazine && newUrlWithMagazine.magazine && (
+            <MjmlText
+              line-height="1.5"
+              font-size="16px"
+              color="#4A4A6A"
+              font-family="sans-serif"
+              paddingBottom="8px"
+            >
+              {newUrlWithMagazine.url}
+            </MjmlText>
+          )}
           <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
             <MjmlButton
               href={link}

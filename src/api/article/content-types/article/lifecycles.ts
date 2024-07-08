@@ -26,7 +26,10 @@ const sendEmails = async (
     name: string;
     language?: Language;
     link: string;
-    shareUrls?: string[];
+    newUrlWithMagazine: {
+      url: string;
+      magazine: string;
+    };
     originName?: string
   }) => string,
   title: string,
@@ -39,7 +42,10 @@ const sendEmails = async (
     firstname: string;
     email: string;
   },
-  shareUrls?: string[],
+  newUrlWithMagazine: {
+    url: string;
+    magazine: string;
+  },
   originName?: string
 ) => {
   const promises = recipients.map(async (recipient) => {
@@ -52,7 +58,7 @@ const sendEmails = async (
         articleTitle: article.title,
         name: `${creatorOrUpdater.firstname}`,
         link: `${env("URL")}admin/content-manager/collection-types/api::article.article/${article.id}`,
-        shareUrls: shareUrls,
+        newUrlWithMagazine: newUrlWithMagazine,
         originName: originName
       }),
     });
@@ -76,17 +82,10 @@ export default {
     const ctx = strapi.requestContext.get();
     const newRawData = ctx.request.body;
 
-    console.log(data.urls)
-    console.log(newRawData.urls)
-
     const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
 
     if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
-    console.log(data)
-    // subscribe the creator to the article by default
-    console.log(!data.subscribers)
-    console.log(data.subscribers)
     if (!data.subscribers) return
     data.subscribers.connect = [data.createdBy]
   },
@@ -114,17 +113,6 @@ export default {
     const numberOfCurrrentSharedUrls = article.urls?.length
     const numberOfUpdatedSharedUrls = data.urls?.length
 
-    console.log({ article })
-
-    console.log({ data })
-    console.log({ newRawData })
-
-    console.log({ dataUrls: data.urls })
-
-    console.log({ newRawDataUurls: newRawData.urls })
-
-    // return
-
     let administrators = []
 
     if (!article) return;
@@ -132,50 +120,33 @@ export default {
     // * Guard clause to prevent adding or publishing an article without an origin
     const isUnpublishingArticle = article.publishedAt !== null && data.publishedAt === null;
 
-    console.log({ isUnpublishingArticle })
-
     const isWithoutAndNotAddingOrigin = !article.origin && data.origin?.connect?.length === 0;
     const isUpdatedWithOriginRemoved = data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0;
-
-    console.log({
-      isWithoutAndNotAddingOrigin,
-      isUpdatedWithOriginRemoved
-    })
 
     if (isWithoutAndNotAddingOrigin || isUpdatedWithOriginRemoved) throw new ValidationError('Origin is required for articles');
 
     const isDisconnectingUrlMagazineWithoutAddingNewOne = newRawData.urls?.some(url => url.magazine.disconnect?.length > 0 && url.magazine.connect?.length === 0);
 
-    console.log({
-      isDisconnectingUrlMagazineWithoutAddingNewOne
-    })
-
     if (!isUnpublishingArticle && isDisconnectingUrlMagazineWithoutAddingNewOne) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
-    const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
+    // ! TODO hasUrlsWithoutMagazin should be implemented somehow...
 
-    if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
+    // const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
+
+    // console.log({hasUrlsWithoutMagazine})
+
+    // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
     // * If the article is not published
     if (!article.publishedAt) {
       // ! TODO when you try to update an article in draft that has shared urls without a magazine or you try to disconnect the magazine and save it
-      const isNotUpdatingExistingOrigin = (article.origin && !data.origin) || (!(data.origin.disconnect.length === 0) && !newRawData.origin)
-
-      console.log({ isNotUpdatingExistingOrigin })
-
-      // console.log(article.origin)
-
-      // console.log(data.origin)
-
-      // console.log(newRawData.origin)
+      const isNotUpdatingExistingOrigin = (article.origin && !data.origin) || (!(data.origin.disconnect.length === 0) && !newRawData.origin) || (article.origin && (data.origin && (data.origin.disconnect.length === 0)) && (data.origin && (data.origin.connect.length === 0)))
 
       // ! If origin is already added 
 
       const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id);
 
       administrators = await strapi.query("admin::user").findMany();
-
-      // console.log(data)
 
       const creator = administrators.find(
         (admin) => admin.id === data.updatedBy,
@@ -211,21 +182,23 @@ export default {
 
         const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
 
-        const newArticleUrls = getNewArticleUrls(newRawData);
+        const newUrlMagazine = await strapi.entityService.findOne('api::magazine.magazine', newRawData.urls[newRawData.urls.length - 1].magazine.connect[0].id);
 
-        console.log(newRawData.urls)
-        // console.log(data)
+        const newUrl = newRawData.urls[newRawData.urls.length - 1].url
 
         await sendEmails(
           subscribedAdminEmailAddresses,
           createArticleShareEmailTemplate,
-          `EM GUIDE: New share on ${truncateText({ text: article.title })}`,
+          `EM GUIDE: ${newUrlMagazine.name} has shared your article ${truncateText({ text: article.title })}`,
           {
             id: newRawData.id,
             title: article.title,
           },
           data.updatedBy,
-          newArticleUrls
+          {
+            url: newUrl,
+            magazine: newUrlMagazine.name
+          }
         );
       }
     }
