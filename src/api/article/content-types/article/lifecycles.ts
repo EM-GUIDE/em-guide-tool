@@ -175,7 +175,7 @@ export default {
 
       administrators = await strapi.query("admin::user").findMany();
 
-      console.log(data)
+      // console.log(data)
 
       const creator = administrators.find(
         (admin) => admin.id === data.updatedBy,
@@ -212,6 +212,9 @@ export default {
         const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
 
         const newArticleUrls = getNewArticleUrls(newRawData);
+
+        console.log(newRawData.urls)
+        // console.log(data)
 
         await sendEmails(
           subscribedAdminEmailAddresses,

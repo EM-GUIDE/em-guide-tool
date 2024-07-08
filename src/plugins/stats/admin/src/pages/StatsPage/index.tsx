@@ -21,6 +21,8 @@ import {
   Typography,
 } from "@strapi/design-system";
 
+import { TableDescription } from "../../components/TableDescription";
+
 import useSWR from "swr";
 
 import {
@@ -123,10 +125,11 @@ const StatsPage = () => {
                   gap={4}
                 >
                   <Typography as="h3" variant="beta">
-                    Total number of articles: {queryData?.articles.length}
+                    EM GUIDE's total number of original articles:{" "}
+                    {queryData?.articles.length}
                   </Typography>
                   <Typography as="h3" variant="beta">
-                    Total number of shares:{" "}
+                    EM GUIDE's total number of shared articles:{" "}
                     {queryData?.articles.reduce(
                       (acc: any, article: any) =>
                         acc + (article.urls?.length ?? 0),
@@ -353,13 +356,15 @@ const StatsPage = () => {
                         <GridItem col={6} s={12}>
                           <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
-                              Number of articles: {magazine.articles.length}
+                              Magazine's total number of "own" articles:{" "}
+                              {magazine.articles.length}
                             </Typography>
                           </Box>
 
                           <Box marginBottom={4}>
                             <Typography as="h3" variant="beta">
-                              Shared articles:{" "}
+                              Magazine's total number of shared "remote"
+                              articles:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.madeSharesCount
@@ -369,6 +374,11 @@ const StatsPage = () => {
 
                           {decodedAllShares.get(magazine.id) && (
                             <Box padding={8} background="neutral100">
+                              <TableDescription
+                                text={
+                                  'Magazine\'s total number of shared "remote" articles per other magazine'
+                                }
+                              />
                               <Table
                                 colCount={2}
                                 rowCount={
@@ -385,8 +395,7 @@ const StatsPage = () => {
                                     </Th>
                                     <Th>
                                       <Typography variant="sigma">
-                                        Number of articles this mag shares from
-                                        an other mag
+                                        Counter
                                       </Typography>
                                     </Th>
                                   </Tr>
@@ -418,7 +427,8 @@ const StatsPage = () => {
                         <GridItem col={6} s={12}>
                           <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
-                              All shares by others:{" "}
+                              Total number of sharing of magazine's "own"
+                              articles:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.receivedSharesCount
@@ -428,7 +438,8 @@ const StatsPage = () => {
 
                           <Box marginBottom={4}>
                             <Typography as="h3" variant="beta">
-                              Number of articles with shares:{" "}
+                              Magazine's total number of "own" articles shared
+                              by at least one other magazine:{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.articlesSharedByOtherMagazinesCount
@@ -438,6 +449,11 @@ const StatsPage = () => {
 
                           {decodedAllShares.get(magazine.id) && (
                             <Box padding={8} background="neutral100">
+                              <TableDescription
+                                text={
+                                  'Per other magazine total number of sharing of magazine\'s "own" articles'
+                                }
+                              />
                               <Table
                                 colCount={2}
                                 rowCount={
@@ -454,7 +470,7 @@ const StatsPage = () => {
                                     </Th>
                                     <Th>
                                       <Typography variant="sigma">
-                                        Shares recieved from others
+                                        Counter
                                       </Typography>
                                     </Th>
                                   </Tr>

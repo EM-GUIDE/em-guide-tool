@@ -110,7 +110,7 @@ exports.default = {
             // ! If origin is already added 
             const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : (_m = data.origin) === null || _m === void 0 ? void 0 : _m.connect[0].id);
             administrators = await strapi.query("admin::user").findMany();
-            console.log(data);
+            // console.log(data)
             const creator = administrators.find((admin) => admin.id === data.updatedBy);
             const emailAddresses = administrators.filter(admin => admin.id !== creator.id).map(admin => admin.email);
             await sendEmails(emailAddresses, create_article_1.createArticleEmailTemplate, `EM GUIDE: ${origin.name} has published a new article: ${article.title}`, {
@@ -131,6 +131,8 @@ exports.default = {
                 });
                 const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
                 const newArticleUrls = getNewArticleUrls(newRawData);
+                console.log(newRawData.urls);
+                // console.log(data)
                 await sendEmails(subscribedAdminEmailAddresses, share_article_1.createArticleShareEmailTemplate, `EM GUIDE: New share on ${(0, utils_2.truncateText)({ text: article.title })}`, {
                     id: newRawData.id,
                     title: article.title,
