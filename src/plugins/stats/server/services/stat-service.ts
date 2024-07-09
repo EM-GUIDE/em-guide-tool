@@ -15,7 +15,8 @@ interface MagazineShares {
   articlesSharedByOtherMagazinesCount: number;
   receivedShares: ShareDetails[]; // Tracks the total number of share actions towards this magazine's articles
   madeShares: ShareDetails[]; // Tracks articles of other magazines shared by this magazine
-  articles: Article[]
+  articles: Article[],
+  articlesByMonth: Record<string, number>
 }
 
 interface SummaryItem {
@@ -43,6 +44,8 @@ function summarizeArray(items: { name: string; id: number }[]): SummaryItem[] {
 function calculateAllShares(articles: any[], magazines: any[]) {
   const sharesMap = new Map<number, MagazineShares>();
 
+  const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
   magazines.forEach((magazine) => {
     sharesMap.set(magazine.id, {
       name: magazine.name,
@@ -51,18 +54,22 @@ function calculateAllShares(articles: any[], magazines: any[]) {
       receivedShares: [],
       madeShares: [],
       articlesSharedByOtherMagazinesCount: 0,
-      articles: []
+      articles: [],
+      articlesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {})
     });
 
     magazine.articles?.forEach((article: any) => {
       if (article.urls && article.urls?.length > 0) sharesMap.get(magazine.id)!.articlesSharedByOtherMagazinesCount += 1;
+      const monthIndex = new Date(article.publishedAt).getMonth();
+      const monthName = months[monthIndex];
+      const magazineEntry = sharesMap.get(magazine.id);
+      if (magazineEntry) {
+        magazineEntry.articles.push(article);
+        if (monthName) {
+          magazineEntry.articlesByMonth[monthName]++;
+        }
+      }
     });
-
-    const magazineEntry = sharesMap.get(magazine.id);
-    if (magazineEntry) {
-      magazineEntry.articles = magazine.articles;
-      sharesMap.set(magazine.id, magazineEntry);
-    }
   });
 
   articles.forEach((article) => {
@@ -98,7 +105,6 @@ function calculateAllShares(articles: any[], magazines: any[]) {
     sharesMap.set(key, updatedValue);
   });
 
-  // console.log(sharesMap);
 
   return Array.from(sharesMap.entries());
 }

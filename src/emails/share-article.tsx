@@ -21,7 +21,8 @@ interface CreateTranslationRequestEmailTemplateProps {
   link: string;
   newUrlWithMagazine: {
     url: string;
-    magazine: string;
+    sharerMagazine: string;
+    originName: string;
   };
 }
 
@@ -37,7 +38,8 @@ export const createArticleShareEmailTemplate = ({
     <Mjml>
       <MjmlHead>
         <MjmlTitle>
-          EM GUIDE | {newUrlWithMagazine.magazine} has shared your article{" "}
+          EM GUIDE | {newUrlWithMagazine.sharerMagazine} has just shared{" "}
+          {newUrlWithMagazine.originName}'s article:{" "}
           {truncateText({ text: articleTitle })}
         </MjmlTitle>
         <MjmlPreview>
@@ -46,16 +48,6 @@ export const createArticleShareEmailTemplate = ({
       </MjmlHead>
       <MjmlBody width={600}>
         <MjmlSection paddingBottom="16px">
-          <MjmlText
-            color="#212134"
-            font-size="32px"
-            font-weight="700"
-            font-family="sans-serif"
-            lineHeight="1.5"
-            paddingBottom=" 16px"
-          >
-            New shared URLs
-          </MjmlText>
           <MjmlDivider
             padding="16px 0"
             border-width="1px"
@@ -69,10 +61,11 @@ export const createArticleShareEmailTemplate = ({
             color="#4A4A6A"
             font-family="sans-serif"
           >
-            New shared URLs on <i>{articleTitle}</i>.
+            {newUrlWithMagazine.sharerMagazine} has just shared{" "}
+            {newUrlWithMagazine.originName}'s article: <i>{articleTitle}</i>.
           </MjmlText>
           <MjmlSpacer height="16px" />
-          {newUrlWithMagazine && newUrlWithMagazine.magazine && (
+          {newUrlWithMagazine && newUrlWithMagazine.url && (
             <MjmlText
               line-height="1.5"
               font-size="16px"

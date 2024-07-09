@@ -28,7 +28,8 @@ const sendEmails = async (
     link: string;
     newUrlWithMagazine: {
       url: string;
-      magazine: string;
+      sharerMagazine: string;
+      originName: string;
     };
     originName?: string
   }) => string,
@@ -44,7 +45,8 @@ const sendEmails = async (
   },
   newUrlWithMagazine: {
     url: string;
-    magazine: string;
+    sharerMagazine: string;
+    originName: string;
   },
   originName?: string
 ) => {
@@ -186,10 +188,14 @@ export default {
 
         const newUrl = newRawData.urls[newRawData.urls.length - 1].url
 
+        console.log({
+          origin: article.origin
+        })
+
         await sendEmails(
           subscribedAdminEmailAddresses,
           createArticleShareEmailTemplate,
-          `EM GUIDE: ${newUrlMagazine.name} has shared your article ${truncateText({ text: article.title })}`,
+          `EM GUIDE: ${newUrlMagazine.name} has just shared ${article.origin.name}'s article: ${truncateText({ text: article.title })}`,
           {
             id: newRawData.id,
             title: article.title,
@@ -197,7 +203,8 @@ export default {
           data.updatedBy,
           {
             url: newUrl,
-            magazine: newUrlMagazine.name
+            sharerMagazine: newUrlMagazine.name,
+            originName: article.origin.name
           }
         );
       }

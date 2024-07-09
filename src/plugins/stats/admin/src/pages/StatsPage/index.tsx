@@ -5,6 +5,7 @@ import { getFetchClient } from "@strapi/helper-plugin";
 import {
   BaseHeaderLayout,
   Box,
+  Button,
   ContentLayout,
   Divider,
   Flex,
@@ -36,6 +37,8 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
 import { ArrowLeft } from "@strapi/icons";
+
+import { Parser } from "@json2csv/plainjs";
 
 interface summarizedSharesMagazine {
   id: number;
@@ -78,9 +81,94 @@ const StatsPage = () => {
   if (queryData?.allShares) {
     decodedAllShares = arrayToMap(queryData?.allShares);
     // console.log(decodedAllShares);
-
-    // console.log(decodedAllShares.get(1));
   }
+
+  const exportCsv = async () => {
+    const dataTransform = data?.data.allShares.map((item: any) => {
+      return {
+        name: item[1].name,
+        totalNumberOfArticles: item[1].articles.length,
+        articlesByMonth: item[1].articlesByMonth,
+        madeSharesCount: item[1].madeSharesCount,
+        madeShares: item[1].madeShares.map(
+          (subItem: { name: string; id: number; count: number }) => {
+            return { name: subItem.name, count: subItem.count };
+          }
+        ),
+        receivedSharesCount: item[1].receivedSharesCount,
+        receivedShares: item[1].receivedShares.map(
+          (subItem: { name: string; id: number; count: number }) => {
+            return { name: subItem.name, count: subItem.count };
+          }
+        ),
+        articlesSharedByOtherMagazinesCount:
+          item[1].articlesSharedByOtherMagazinesCount,
+      };
+    });
+
+    try {
+      const opts = {
+        fields: [
+          {
+            label: "Magazine",
+            value: "name",
+          },
+          {
+            label: `Magazine's total number of "own" articles`,
+            value: "totalNumberOfArticles",
+          },
+          {
+            label: `Articles by month`,
+            value: "articlesByMonth",
+          },
+          {
+            label: `Magazine's total number of shared "remote" articles`,
+            value: "madeSharesCount",
+          },
+          {
+            label: `Magazine's total number of shared "remote" articles per other magazine`,
+            value: "madeShares",
+          },
+          {
+            label: `Total number of sharing of magazine's "own" articles`,
+            value: "receivedSharesCount",
+          },
+          {
+            label: `Per other magazine total number of sharing of magazine's "own" articles`,
+            value: "receivedShares",
+          },
+          {
+            label: `Magazine's total number of "own" articles shared by at least one other magazine`,
+            value: "articlesSharedByOtherMagazinesCount",
+          },
+        ],
+      };
+      const parser = new Parser(opts);
+      const csv = parser.parse(dataTransform);
+
+      const now = new Date();
+      const year = now.getFullYear().toString();
+      const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-based
+      const day = now.getDate().toString().padStart(2, "0");
+      const hours = now.getHours().toString().padStart(2, "0");
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const seconds = now.getSeconds().toString().padStart(2, "0");
+
+      const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+
+      const filename = `em-tool_statistics_${timestamp}.csv`;
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   if (error) return <div>failed to load</div>;
 
@@ -95,9 +183,12 @@ const StatsPage = () => {
           }
           title="Statistics"
           as="h2"
-        />
+        ></BaseHeaderLayout>
       </Box>
       <ContentLayout>
+        <Box paddingBottom={4}>
+          <Button onClick={exportCsv}>Export CSV</Button>
+        </Box>
         <Grid
           gap={{
             desktop: 5,

@@ -108,12 +108,16 @@ exports.default = {
                 const subscribedAdminEmailAddresses = subscribedAdministrators.filter(admin => admin.id !== data.updatedBy).map(admin => admin.email);
                 const newUrlMagazine = await strapi.entityService.findOne('api::magazine.magazine', newRawData.urls[newRawData.urls.length - 1].magazine.connect[0].id);
                 const newUrl = newRawData.urls[newRawData.urls.length - 1].url;
-                await sendEmails(subscribedAdminEmailAddresses, share_article_1.createArticleShareEmailTemplate, `EM GUIDE: ${newUrlMagazine.name} has shared your article ${(0, utils_2.truncateText)({ text: article.title })}`, {
+                console.log({
+                    origin: article.origin
+                });
+                await sendEmails(subscribedAdminEmailAddresses, share_article_1.createArticleShareEmailTemplate, `EM GUIDE: ${newUrlMagazine.name} has just shared ${article.origin.name}'s article: ${(0, utils_2.truncateText)({ text: article.title })}`, {
                     id: newRawData.id,
                     title: article.title,
                 }, data.updatedBy, {
                     url: newUrl,
-                    magazine: newUrlMagazine.name
+                    sharerMagazine: newUrlMagazine.name,
+                    originName: article.origin.name
                 });
             }
         }

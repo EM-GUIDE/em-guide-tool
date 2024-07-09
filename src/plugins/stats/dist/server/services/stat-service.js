@@ -15,6 +15,7 @@ function summarizeArray(items) {
 }
 function calculateAllShares(articles, magazines) {
     const sharesMap = new Map();
+    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     magazines.forEach((magazine) => {
         var _a;
         sharesMap.set(magazine.id, {
@@ -24,18 +25,23 @@ function calculateAllShares(articles, magazines) {
             receivedShares: [],
             madeShares: [],
             articlesSharedByOtherMagazinesCount: 0,
-            articles: []
+            articles: [],
+            articlesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {})
         });
         (_a = magazine.articles) === null || _a === void 0 ? void 0 : _a.forEach((article) => {
             var _a;
             if (article.urls && ((_a = article.urls) === null || _a === void 0 ? void 0 : _a.length) > 0)
                 sharesMap.get(magazine.id).articlesSharedByOtherMagazinesCount += 1;
+            const monthIndex = new Date(article.publishedAt).getMonth();
+            const monthName = months[monthIndex];
+            const magazineEntry = sharesMap.get(magazine.id);
+            if (magazineEntry) {
+                magazineEntry.articles.push(article);
+                if (monthName) {
+                    magazineEntry.articlesByMonth[monthName]++;
+                }
+            }
         });
-        const magazineEntry = sharesMap.get(magazine.id);
-        if (magazineEntry) {
-            magazineEntry.articles = magazine.articles;
-            sharesMap.set(magazine.id, magazineEntry);
-        }
     });
     articles.forEach((article) => {
         var _a;
@@ -66,7 +72,6 @@ function calculateAllShares(articles, magazines) {
         const updatedValue = { ...value, madeShares: summarizedMadeShares, receivedShares: summarizedReceivedShares };
         sharesMap.set(key, updatedValue);
     });
-    // console.log(sharesMap);
     return Array.from(sharesMap.entries());
 }
 exports.default = ({ strapi }) => ({
