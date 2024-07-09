@@ -353,7 +353,7 @@ const StatsPage = () => {
                       direction="column"
                     >
                       <Grid gap={6}>
-                        <GridItem col={6} s={12}>
+                        <GridItem col={12}>
                           <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
                               Magazine's total number of "own" articles:{" "}
@@ -424,7 +424,7 @@ const StatsPage = () => {
                             </Box>
                           )}
                         </GridItem>
-                        <GridItem col={6} s={12}>
+                        <GridItem col={12}>
                           <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
                               Total number of sharing of magazine's "own"
