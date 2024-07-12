@@ -83,8 +83,60 @@ const StatsPage = () => {
     // console.log(decodedAllShares);
   }
 
-  const exportCsv = async () => {
-    const dataTransform = data?.data.allShares.map((item: any) => {
+  const getCsvFileNameTimestamp = () => {
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = (now.getMonth() + 1).toString().padStart(2, "0");
+    const day = now.getDate().toString().padStart(2, "0");
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const seconds = now.getSeconds().toString().padStart(2, "0");
+
+    return `${year}${month}${day}_${hours}${minutes}${seconds}`;
+  };
+
+  const exportOverallCsv = async () => {
+    const dataTransform = {
+      totalArtilesCount: queryData?.articles.length,
+      totalSharesCount: queryData?.articles.reduce(
+        (acc: any, article: any) => acc + (article.urls?.length ?? 0),
+        0
+      ),
+    };
+
+    try {
+      const opts = {
+        fields: [
+          {
+            label: "EM GUIDE's total number of original articles",
+            value: "totalArtilesCount",
+          },
+          {
+            label: `EM GUIDE's total number of shared articles`,
+            value: "totalSharesCount",
+          },
+        ],
+      };
+
+      const parser = new Parser(opts);
+      const csv = parser.parse(dataTransform);
+
+      const filename = `em-tool_statistics_${getCsvFileNameTimestamp()}.csv`;
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const exportPerMagazineCsv = async () => {
+    const dataTransform = queryData?.allShares.map((item: any) => {
       return {
         name: item[1].name,
         totalNumberOfArticles: item[1].articles.length,
@@ -143,20 +195,11 @@ const StatsPage = () => {
           },
         ],
       };
+
       const parser = new Parser(opts);
       const csv = parser.parse(dataTransform);
 
-      const now = new Date();
-      const year = now.getFullYear().toString();
-      const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-based
-      const day = now.getDate().toString().padStart(2, "0");
-      const hours = now.getHours().toString().padStart(2, "0");
-      const minutes = now.getMinutes().toString().padStart(2, "0");
-      const seconds = now.getSeconds().toString().padStart(2, "0");
-
-      const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
-
-      const filename = `em-tool_statistics_${timestamp}.csv`;
+      const filename = `em-tool_statistics_${getCsvFileNameTimestamp()}.csv`;
 
       const blob = new Blob([csv], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
@@ -187,7 +230,12 @@ const StatsPage = () => {
       </Box>
       <ContentLayout>
         <Box paddingBottom={4}>
-          <Button onClick={exportCsv}>Export CSV</Button>
+          <Button onClick={exportOverallCsv}>Export CSV (overall)</Button>
+        </Box>
+        <Box paddingBottom={4}>
+          <Button onClick={exportPerMagazineCsv}>
+            Export CSV (per magazine)
+          </Button>
         </Box>
         <Grid
           gap={{
@@ -260,7 +308,7 @@ const StatsPage = () => {
                     plugins: {
                       title: {
                         display: true,
-                        text: "Articles By Magazine",
+                        text: "Original articles by magazine",
                         font: {
                           weight: "bold",
                           size: 14,
@@ -339,7 +387,7 @@ const StatsPage = () => {
                     plugins: {
                       title: {
                         display: true,
-                        text: "Articles By Month",
+                        text: "Original articles by month",
                         font: {
                           weight: "bold",
                           size: 14,
@@ -623,7 +671,7 @@ const StatsPage = () => {
                                     plugins: {
                                       title: {
                                         display: true,
-                                        text: "Articles By Month",
+                                        text: "Original articles by month",
                                         font: {
                                           weight: "bold",
                                           size: 14,
