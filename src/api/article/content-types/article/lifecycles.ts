@@ -140,13 +140,15 @@ export default {
     // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
     // * If the article is not published
-    if (!article.publishedAt) {
+    if (!article.publishedAt && data.publishedAt) {
       // ! TODO when you try to update an article in draft that has shared urls without a magazine or you try to disconnect the magazine and save it
       const isNotUpdatingExistingOrigin = (article.origin && !data.origin) || (!(data.origin.disconnect.length === 0) && !newRawData.origin) || (article.origin && (data.origin && (data.origin.disconnect.length === 0)) && (data.origin && (data.origin.connect.length === 0)))
 
       // ! If origin is already added 
 
       const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id);
+
+      
 
       administrators = await strapi.query("admin::user").findMany();
 
@@ -187,10 +189,6 @@ export default {
         const newUrlMagazine = await strapi.entityService.findOne('api::magazine.magazine', newRawData.urls[newRawData.urls.length - 1].magazine.connect[0].id);
 
         const newUrl = newRawData.urls[newRawData.urls.length - 1].url
-
-        console.log({
-          origin: article.origin
-        })
 
         await sendEmails(
           subscribedAdminEmailAddresses,
