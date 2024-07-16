@@ -90,12 +90,13 @@
             "mappedBy": "article"
         },
         "attachments": {
+            "type": "media",
+            "multiple": true,
+            "required": false,
             "allowedTypes": [
                 "images",
                 "files"
-            ],
-            "type": "media",
-            "multiple": true
+            ]
         }
     }
 }

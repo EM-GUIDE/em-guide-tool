@@ -16,7 +16,7 @@
             "target": "api::magazine.magazine"
         },
         "date": {
-            "type": "datetime",
+            "type": "date",
             "required": true
         }
     }

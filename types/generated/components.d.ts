@@ -33,7 +33,7 @@ export interface UrlOriginalUrls extends Schema.Component {
       'oneToOne',
       'api::magazine.magazine'
     >;
-    date: Attribute.DateTime & Attribute.Required;
+    date: Attribute.Date & Attribute.Required;
   };
 }
 
