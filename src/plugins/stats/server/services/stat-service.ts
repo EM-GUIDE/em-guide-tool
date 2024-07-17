@@ -1,6 +1,5 @@
 import { Strapi } from "@strapi/strapi";
 import type { Attribute } from "@strapi/strapi";
-import { startOfMonth, endOfMonth } from "date-fns";
 
 export type Article = Attribute.GetValues<"api::article.article">;
 interface ShareDetails {
