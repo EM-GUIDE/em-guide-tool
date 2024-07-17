@@ -142,6 +142,7 @@ const StatsPage = () => {
         totalNumberOfArticles: item[1].articles.length,
         articlesByMonth: item[1].articlesByMonth,
         madeSharesCount: item[1].madeSharesCount,
+        madeSharesByMonth: item[1].madeSharesByMonth,
         madeShares: item[1].madeShares.map(
           (subItem: { name: string; id: number; count: number }) => {
             return { name: subItem.name, count: subItem.count };
@@ -170,12 +171,16 @@ const StatsPage = () => {
             value: "totalNumberOfArticles",
           },
           {
-            label: `Articles by month`,
+            label: `Original articles by month`,
             value: "articlesByMonth",
           },
           {
             label: `Magazine's total number of shared "remote" articles`,
             value: "madeSharesCount",
+          },
+          {
+            label: `Shared articles by months`,
+            value: "madeSharesByMonth",
           },
           {
             label: `Magazine's total number of shared "remote" articles per other magazine`,
@@ -342,7 +347,7 @@ const StatsPage = () => {
                     labels: queryData?.magazines?.map((item: any) => item.name),
                     datasets: [
                       {
-                        label: "Total number of articles",
+                        label: "Number of published articles",
                         data: queryData?.magazines?.map(
                           (item: any) => item.articles.length
                         ),
@@ -434,7 +439,7 @@ const StatsPage = () => {
                     ],
                     datasets: [
                       {
-                        label: "Total number of articles",
+                        label: "Number of articles",
                         data: Array.from({ length: 12 }, () => 0).map(
                           (_, i) =>
                             queryData?.articles.filter(
@@ -638,7 +643,7 @@ const StatsPage = () => {
                             </Box>
                           )}
                         </GridItem>
-                        <GridItem col={12}>
+                        <GridItem col={6}>
                           {isLoading && <Loader />}
                           {decodedAllShares.get(magazine.id) &&
                             decodedAllShares.get(magazine.id).articles?.length >
@@ -719,7 +724,7 @@ const StatsPage = () => {
                                     ],
                                     datasets: [
                                       {
-                                        label: "Total number of articles",
+                                        label: "Number of published articles",
                                         data: Array.from(
                                           { length: 12 },
                                           () => 0
@@ -734,6 +739,105 @@ const StatsPage = () => {
                                                     a.publishedAt
                                                   ).getMonth() === i
                                               ).length
+                                        ),
+                                        backgroundColor: "rgb(217, 216, 255)",
+                                        borderColor: "rgb(123, 121, 255)",
+                                        borderWidth: 2,
+                                        hoverBackgroundColor:
+                                          "rgb(217, 216, 255)",
+                                        borderRadius: 4,
+                                      },
+                                    ],
+                                  }}
+                                />
+                              </Box>
+                            )}
+                        </GridItem>
+                        <GridItem col={6}>
+                          {isLoading && <Loader />}
+                          {decodedAllShares.get(magazine.id) &&
+                            decodedAllShares.get(magazine.id).madeSharesCount >
+                              0 && (
+                              <Box
+                                background="neutral0"
+                                hasRadius
+                                padding={[2, 2, 1]}
+                                shadow="tableShadow"
+                              >
+                                <Bar
+                                  height={300}
+                                  options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                      x: {
+                                        stacked: true,
+                                        grid: {
+                                          display: false,
+                                        },
+                                      },
+                                      y: {
+                                        display: false,
+                                        grid: {
+                                          display: false,
+                                        },
+                                      },
+                                    },
+                                    plugins: {
+                                      title: {
+                                        display: true,
+                                        text: "Shared articles by month",
+                                        font: {
+                                          weight: "bold",
+                                          size: 14,
+                                        },
+                                      },
+                                      datalabels: {
+                                        color: "rgb(123, 121, 255)",
+                                        font: {
+                                          weight: "bold",
+                                          size: 14,
+                                        },
+                                      },
+                                      tooltip: {
+                                        enabled: true,
+                                        callbacks: {
+                                          label: function (context) {
+                                            let label =
+                                              context.dataset.label || "";
+                                            if (label) {
+                                              label += ": ";
+                                            }
+                                            if (context.parsed.y !== null) {
+                                              label += context.parsed.y;
+                                            }
+                                            return label;
+                                          },
+                                        },
+                                      },
+                                    },
+                                  }}
+                                  data={{
+                                    labels: [
+                                      "jan",
+                                      "feb",
+                                      "mar",
+                                      "apr",
+                                      "may",
+                                      "jun",
+                                      "jul",
+                                      "aug",
+                                      "sep",
+                                      "oct",
+                                      "nov",
+                                      "dec",
+                                    ],
+                                    datasets: [
+                                      {
+                                        label: "Number of shared articles",
+                                        data: Object.values(
+                                          decodedAllShares.get(magazine.id)
+                                            ?.madeSharesByMonth
                                         ),
                                         backgroundColor: "rgb(217, 216, 255)",
                                         borderColor: "rgb(123, 121, 255)",

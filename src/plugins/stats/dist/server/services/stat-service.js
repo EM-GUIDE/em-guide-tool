@@ -2,20 +2,36 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 function summarizeArray(items) {
     const countsMap = new Map();
-    items.forEach(item => {
+    items.forEach((item) => {
         const key = `${item.name}-${item.id}`;
         const currentCount = countsMap.get(key) || 0;
         countsMap.set(key, currentCount + 1);
     });
     const summarizedItems = Array.from(countsMap.entries()).map(([key, count]) => {
-        const [name, id] = key.split('-');
+        const [name, id] = key.split("-");
         return { name, id: parseInt(id, 10), count };
     });
     return summarizedItems;
 }
 function calculateAllShares(articles, magazines) {
     const sharesMap = new Map();
-    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const months = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+    ];
+    function getAbbreviatedMonth(monthIndex) {
+        return months[monthIndex];
+    }
     magazines.forEach((magazine) => {
         var _a;
         sharesMap.set(magazine.id, {
@@ -26,7 +42,9 @@ function calculateAllShares(articles, magazines) {
             madeShares: [],
             articlesSharedByOtherMagazinesCount: 0,
             articles: [],
-            articlesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {})
+            articlesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {}),
+            receivedSharesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {}),
+            madeSharesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {})
         });
         (_a = magazine.articles) === null || _a === void 0 ? void 0 : _a.forEach((article) => {
             var _a;
@@ -49,19 +67,27 @@ function calculateAllShares(articles, magazines) {
             const sharingMagazine = sharesMap.get(url.magazine.id);
             const sharedMagazine = sharesMap.get(article.origin.id);
             if (sharingMagazine) {
+                const currentDate = new Date(url.date);
+                const monthIndex = currentDate.getMonth(); // Get the month index (0-based)
+                const abbreviatedMonth = getAbbreviatedMonth(monthIndex); // Convert to abbreviated month name
                 sharingMagazine.madeSharesCount += 1;
                 sharingMagazine.madeShares.push({
                     name: article.origin.name,
                     id: article.origin.id,
                 });
+                sharingMagazine.madeSharesByMonth[abbreviatedMonth] += 1;
                 sharesMap.set(url.magazine.id, sharingMagazine);
             }
             if (sharedMagazine) {
+                const currentDate = new Date(url.date);
+                const monthIndex = currentDate.getMonth(); // Get the month index (0-based)
+                const abbreviatedMonth = getAbbreviatedMonth(monthIndex); // Convert to abbreviated month name
                 sharedMagazine.receivedSharesCount += 1;
                 sharedMagazine.receivedShares.push({
                     name: url.magazine.name,
                     id: url.magazine.id,
                 });
+                sharedMagazine.receivedSharesByMonth[abbreviatedMonth] += 1;
                 sharesMap.set(article.origin.id, sharedMagazine);
             }
         });
@@ -69,7 +95,11 @@ function calculateAllShares(articles, magazines) {
     sharesMap.forEach((value, key) => {
         const summarizedMadeShares = summarizeArray(value.madeShares);
         const summarizedReceivedShares = summarizeArray(value.receivedShares);
-        const updatedValue = { ...value, madeShares: summarizedMadeShares, receivedShares: summarizedReceivedShares };
+        const updatedValue = {
+            ...value,
+            madeShares: summarizedMadeShares,
+            receivedShares: summarizedReceivedShares,
+        };
         sharesMap.set(key, updatedValue);
     });
     return Array.from(sharesMap.entries());
@@ -77,29 +107,29 @@ function calculateAllShares(articles, magazines) {
 exports.default = ({ strapi }) => ({
     async getArticlesPerMag() {
         var _a, _b;
-        const magazines = await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.findMany('api::magazine.magazine', {
+        const magazines = await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.findMany("api::magazine.magazine", {
             populate: {
                 articles: {
                     populate: {
                         urls: {
-                            populate: ['urls', 'magazine']
-                        }
-                    }
-                }
-            }
+                            populate: ["urls", "magazine"],
+                        },
+                    },
+                },
+            },
         }));
-        const articles = await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.findMany('api::article.article', {
+        const articles = await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.findMany("api::article.article", {
             filters: {
                 publishedAt: {
                     $notNull: true,
-                }
+                },
             },
             populate: {
                 origin: true,
                 urls: {
-                    populate: ['magazine, created_at']
-                }
-            }
+                    populate: ["magazine, created_at"],
+                },
+            },
         }));
         // @ts-expect-error
         const allShares = calculateAllShares(articles, magazines);
