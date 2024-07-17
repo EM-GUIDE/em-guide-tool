@@ -156,7 +156,7 @@ export default {
               );
               // articles[i].urls[k].magazine = { name: magazineName };
               await strapi.db
-                .connection("components_url_original_urls")
+                .connection("components_url_original_urls_magazine_links")
                 .insert({
                   original_urls_id: articles[i].urls[k].id,
                   magazine_id: matchedMagazine.id,
