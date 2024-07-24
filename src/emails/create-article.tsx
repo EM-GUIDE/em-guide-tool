@@ -24,7 +24,7 @@ export const createArticleEmailTemplate = ({
   articleTitle,
   name,
   link,
-  originName
+  originName,
 }: CreateArticleEmailTemplateProps) => {
   const { html, errors } = renderReactToMjml(
     <Mjml>
@@ -44,34 +44,38 @@ export const createArticleEmailTemplate = ({
           >
             EM GUIDE | New article created
           </MjmlText>
-          <MjmlDivider padding="16px 0" border-width="1px" border-color="#F6F6F9" />
+          <MjmlDivider
+            padding="16px 0"
+            border-width="1px"
+            border-color="#F6F6F9"
+          />
         </MjmlSection>
         <MjmlSection>
-        <MjmlText
-          line-height="1.5"
-          font-size="16px"
-          color="#4A4A6A"
-          font-family="sans-serif"
-        >
-          {name} has created a new article: {articleTitle}. You can
-          view it by clicking the link below.
-        </MjmlText>
-        <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
-          <MjmlButton
-            href={link}
-            background-color="#4945FF"
-            font-weight="700"
-            font-size="14px"
-            padding="8px 16px"
-            border-right="4px"
-            height="40px"
+          <MjmlText
             line-height="1.5"
-            textAlign="center"
-            align="center"
+            font-size="16px"
+            color="#4A4A6A"
+            font-family="sans-serif"
           >
-            Open article
-          </MjmlButton>
-        </MjmlWrapper>
+            {originName} has published a new article: {articleTitle}. You can
+            view it by clicking the link below.
+          </MjmlText>
+          <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
+            <MjmlButton
+              href={link}
+              background-color="#4945FF"
+              font-weight="700"
+              font-size="14px"
+              padding="8px 16px"
+              border-right="4px"
+              height="40px"
+              line-height="1.5"
+              textAlign="center"
+              align="center"
+            >
+              Open article
+            </MjmlButton>
+          </MjmlWrapper>
         </MjmlSection>
       </MjmlBody>
     </Mjml>
