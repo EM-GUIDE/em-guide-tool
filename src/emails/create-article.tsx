@@ -57,8 +57,8 @@ export const createArticleEmailTemplate = ({
             color="#4A4A6A"
             font-family="sans-serif"
           >
-            {originName} has published a new article: {articleTitle}. You can
-            view it by clicking the link below.
+            {name} has created a new article: {articleTitle}. You can view it by
+            clicking the link below.
           </MjmlText>
           <MjmlWrapper padding="16px 0" fullWidth textAlign="center">
             <MjmlButton
