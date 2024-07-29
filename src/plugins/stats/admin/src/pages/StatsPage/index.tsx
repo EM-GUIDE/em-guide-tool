@@ -547,22 +547,23 @@ const StatsPage = () => {
                                 <Tbody>
                                   {decodedAllShares
                                     .get(magazine.id)
-                                    ?.madeShares.map(
-                                      (entry: summarizedSharesMagazine) => (
-                                        <Tr key={entry.id}>
-                                          <Td>
-                                            <Typography textColor="neutral800">
-                                              {entry.name}
-                                            </Typography>
-                                          </Td>
-                                          <Td>
-                                            <Typography textColor="neutral800">
-                                              {entry.count}
-                                            </Typography>
-                                          </Td>
-                                        </Tr>
-                                      )
-                                    )}
+                                    ?.madeShares.sort(
+                                      (a, b) => b.count - a.count
+                                    )
+                                    .map((entry: summarizedSharesMagazine) => (
+                                      <Tr key={entry.id}>
+                                        <Td>
+                                          <Typography textColor="neutral800">
+                                            {entry.name}
+                                          </Typography>
+                                        </Td>
+                                        <Td>
+                                          <Typography textColor="neutral800">
+                                            {entry.count}
+                                          </Typography>
+                                        </Td>
+                                      </Tr>
+                                    ))}
                                 </Tbody>
                               </Table>
                             </Box>
@@ -622,22 +623,23 @@ const StatsPage = () => {
                                 <Tbody>
                                   {decodedAllShares
                                     .get(magazine.id)
-                                    ?.receivedShares.map(
-                                      (entry: summarizedSharesMagazine) => (
-                                        <Tr key={entry.id}>
-                                          <Td>
-                                            <Typography textColor="neutral800">
-                                              {entry.name}
-                                            </Typography>
-                                          </Td>
-                                          <Td>
-                                            <Typography textColor="neutral800">
-                                              {entry.count}
-                                            </Typography>
-                                          </Td>
-                                        </Tr>
-                                      )
-                                    )}
+                                    ?.receivedShares.sort(
+                                      (a, b) => b.count - a.count
+                                    )
+                                    .map((entry: summarizedSharesMagazine) => (
+                                      <Tr key={entry.id}>
+                                        <Td>
+                                          <Typography textColor="neutral800">
+                                            {entry.name}
+                                          </Typography>
+                                        </Td>
+                                        <Td>
+                                          <Typography textColor="neutral800">
+                                            {entry.count}
+                                          </Typography>
+                                        </Td>
+                                      </Tr>
+                                    ))}
                                 </Tbody>
                               </Table>
                             </Box>
