@@ -548,7 +548,7 @@ const StatsPage = () => {
                                   {decodedAllShares
                                     .get(magazine.id)
                                     ?.madeShares.sort(
-                                      (a, b) => b.count - a.count
+                                      (a:any , b: any) => b.count - a.count
                                     )
                                     .map((entry: summarizedSharesMagazine) => (
                                       <Tr key={entry.id}>
@@ -624,7 +624,7 @@ const StatsPage = () => {
                                   {decodedAllShares
                                     .get(magazine.id)
                                     ?.receivedShares.sort(
-                                      (a, b) => b.count - a.count
+                                      (a:any, b:any) => b.count - a.count
                                     )
                                     .map((entry: summarizedSharesMagazine) => (
                                       <Tr key={entry.id}>
