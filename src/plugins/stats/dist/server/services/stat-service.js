@@ -119,11 +119,6 @@ exports.default = ({ strapi }) => ({
             },
         }));
         const articles = await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.findMany("api::article.article", {
-            filters: {
-                publishedAt: {
-                    $notNull: true,
-                },
-            },
             populate: {
                 origin: true,
                 urls: {

@@ -97,8 +97,10 @@ function calculateAllShares(articles: any[], magazines: any[]) {
     });
 
     magazine.articles?.forEach((article: any) => {
+      
       if (article.urls && article.urls?.length > 0)
         sharesMap.get(magazine.id)!.articlesSharedByOtherMagazinesCount += 1;
+      
       const monthIndex = new Date(article.publishedAt).getMonth();
       const monthName = months[monthIndex];
       const magazineEntry = sharesMap.get(magazine.id);
@@ -185,11 +187,6 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     const articles = await strapi.entityService?.findMany(
       "api::article.article",
       {
-        filters: {
-          publishedAt: {
-            $notNull: true,
-          },
-        },
         populate: {
           origin: true,
           urls: {

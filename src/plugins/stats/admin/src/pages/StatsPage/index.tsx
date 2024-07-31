@@ -45,10 +45,6 @@ interface summarizedSharesMagazine {
   name: string;
   count: number;
 }
-interface summarizedSharesItem {
-  sum: number;
-  byMagazine: summarizedSharesMagazine[];
-}
 
 ChartJS.register(
   CategoryScale,
@@ -72,7 +68,7 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  // console.log(data?.data);
+  console.log(data?.data);
 
   const queryData = data?.data;
 
@@ -80,7 +76,7 @@ const StatsPage = () => {
 
   if (queryData?.allShares) {
     decodedAllShares = arrayToMap(queryData?.allShares);
-    // console.log(decodedAllShares);
+    console.log(decodedAllShares);
   }
 
   const getCsvFileNameTimestamp = () => {
@@ -97,7 +93,9 @@ const StatsPage = () => {
 
   const exportOverallCsv = async () => {
     const dataTransform = {
-      totalArtilesCount: queryData?.articles.length,
+      totalArtilesCount: queryData?.articles.filter(
+        (article: any) => article.publishedAt !== null
+      ).length,
       totalSharesCount: queryData?.articles.reduce(
         (acc: any, article: any) => acc + (article.urls?.length ?? 0),
         0
@@ -108,11 +106,12 @@ const StatsPage = () => {
       const opts = {
         fields: [
           {
-            label: "EM GUIDE's total number of original articles",
+            label:
+              "EM GUIDE's total number of original articles (drafts excl.)",
             value: "totalArtilesCount",
           },
           {
-            label: `EM GUIDE's total number of shared articles`,
+            label: `EM GUIDE's total number of shared articles (drafts incl.)`,
             value: "totalSharesCount",
           },
         ],
@@ -139,7 +138,9 @@ const StatsPage = () => {
     const dataTransform = queryData?.allShares.map((item: any) => {
       return {
         name: item[1].name,
-        totalNumberOfArticles: item[1].articles.length,
+        totalNumberOfArticles: item[1].articles.filter(
+          (article: any) => article.publishedAt !== null
+        ).length,
         articlesByMonth: item[1].articlesByMonth,
         madeSharesCount: item[1].madeSharesCount,
         madeSharesByMonth: item[1].madeSharesByMonth,
@@ -167,15 +168,15 @@ const StatsPage = () => {
             value: "name",
           },
           {
-            label: `Magazine's total number of "own" articles`,
+            label: `Magazine's total number of original articles (drafts excl.)`,
             value: "totalNumberOfArticles",
           },
           {
-            label: `Original articles by month`,
+            label: `Original articles my month (drafts excl.)`,
             value: "articlesByMonth",
           },
           {
-            label: `Magazine's total number of shared "remote" articles`,
+            label: `Magazine's total number of shared articles (drafts incl.)`,
             value: "madeSharesCount",
           },
           {
@@ -183,19 +184,19 @@ const StatsPage = () => {
             value: "madeSharesByMonth",
           },
           {
-            label: `Magazine's total number of shared "remote" articles per other magazine`,
+            label: `Magazine's shares from other magazines (drafts incl.)`,
             value: "madeShares",
           },
           {
-            label: `Total number of sharing of magazine's "own" articles`,
+            label: `Total number of shares from this magazine (drafts incl.)`,
             value: "receivedSharesCount",
           },
           {
-            label: `Per other magazine total number of sharing of magazine's "own" articles`,
+            label: `Magazine's original articles shared by other magazines (drafts incl.)`,
             value: "receivedShares",
           },
           {
-            label: `Magazine's total number of "own" articles shared by at least one other magazine`,
+            label: `Magazine's total number of original articles shared by at least one other magazine (drafts excl.)`,
             value: "articlesSharedByOtherMagazinesCount",
           },
         ],
@@ -269,11 +270,15 @@ const StatsPage = () => {
                   gap={4}
                 >
                   <Typography as="h3" variant="beta">
-                    EM GUIDE's total number of original articles:{" "}
-                    {queryData?.articles.length}
+                    EM GUIDE's total number of original articles (drafts excl.):{" "}
+                    {
+                      queryData?.articles.filter(
+                        (article: any) => article.publishedAt !== null
+                      ).length
+                    }
                   </Typography>
                   <Typography as="h3" variant="beta">
-                    EM GUIDE's total number of shared articles:{" "}
+                    EM GUIDE's total number of shared articles (drafts incl.):{" "}
                     {queryData?.articles.reduce(
                       (acc: any, article: any) =>
                         acc + (article.urls?.length ?? 0),
@@ -313,7 +318,7 @@ const StatsPage = () => {
                     plugins: {
                       title: {
                         display: true,
-                        text: "Original articles by magazine",
+                        text: "Original articles my magazine (drafts excl.)",
                         font: {
                           weight: "bold",
                           size: 14,
@@ -349,7 +354,10 @@ const StatsPage = () => {
                       {
                         label: "Number of published articles",
                         data: queryData?.magazines?.map(
-                          (item: any) => item.articles.length
+                          (item: any) =>
+                            item.articles.filter(
+                              (article: any) => article.publishedAt !== null
+                            ).length
                         ),
                         backgroundColor: "rgb(217, 216, 255)",
                         borderColor: "rgb(123, 121, 255)",
@@ -392,7 +400,7 @@ const StatsPage = () => {
                     plugins: {
                       title: {
                         display: true,
-                        text: "Original articles by month",
+                        text: "Original articles my month (drafts excl.)",
                         font: {
                           weight: "bold",
                           size: 14,
@@ -500,8 +508,13 @@ const StatsPage = () => {
                         <GridItem col={12}>
                           <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
-                              Magazine's total number of "own" articles:{" "}
-                              {magazine.articles.length}
+                              Magazine's total number of original articles
+                              (drafts excl.):{" "}
+                              {
+                                magazine.articles.filter(
+                                  (article: any) => article.publishedAt !== null
+                                ).length
+                              }
                             </Typography>
                           </Box>
 
@@ -520,7 +533,7 @@ const StatsPage = () => {
                             <Box padding={8} background="neutral100">
                               <TableDescription
                                 text={
-                                  'Magazine\'s total number of shared "remote" articles per other magazine'
+                                  "Magazine's shares from other magazines (drafts incl.)"
                                 }
                               />
                               <Table
@@ -548,7 +561,7 @@ const StatsPage = () => {
                                   {decodedAllShares
                                     .get(magazine.id)
                                     ?.madeShares.sort(
-                                      (a:any , b: any) => b.count - a.count
+                                      (a: any, b: any) => b.count - a.count
                                     )
                                     .map((entry: summarizedSharesMagazine) => (
                                       <Tr key={entry.id}>
@@ -583,8 +596,9 @@ const StatsPage = () => {
 
                           <Box marginBottom={4}>
                             <Typography as="h3" variant="beta">
-                              Magazine's total number of "own" articles shared
-                              by at least one other magazine:{" "}
+                              Magazine's total number of original articles
+                              shared by at least one other magazine (drafts
+                              excl.):{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.articlesSharedByOtherMagazinesCount
@@ -596,7 +610,7 @@ const StatsPage = () => {
                             <Box padding={8} background="neutral100">
                               <TableDescription
                                 text={
-                                  'Per other magazine total number of sharing of magazine\'s "own" articles'
+                                  "Magazine's original articles shared by other magazines (drafts incl.)"
                                 }
                               />
                               <Table
@@ -624,7 +638,7 @@ const StatsPage = () => {
                                   {decodedAllShares
                                     .get(magazine.id)
                                     ?.receivedShares.sort(
-                                      (a:any, b:any) => b.count - a.count
+                                      (a: any, b: any) => b.count - a.count
                                     )
                                     .map((entry: summarizedSharesMagazine) => (
                                       <Tr key={entry.id}>
@@ -678,7 +692,7 @@ const StatsPage = () => {
                                     plugins: {
                                       title: {
                                         display: true,
-                                        text: "Original articles by month",
+                                        text: "Original articles my month (drafts excl.)",
                                         font: {
                                           weight: "bold",
                                           size: 14,
