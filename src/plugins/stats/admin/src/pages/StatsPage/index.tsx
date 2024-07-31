@@ -520,8 +520,8 @@ const StatsPage = () => {
 
                           <Box marginBottom={4}>
                             <Typography as="h3" variant="beta">
-                              Magazine's total number of shared "remote"
-                              articles:{" "}
+                              Magazine's total number of shared articles (drafts
+                              incl.):{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.madeSharesCount
