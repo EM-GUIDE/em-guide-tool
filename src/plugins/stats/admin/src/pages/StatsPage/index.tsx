@@ -585,8 +585,8 @@ const StatsPage = () => {
                         <GridItem col={12}>
                           <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
-                              Total number of sharing of magazine's "own"
-                              articles:{" "}
+                              Total number of shares from this magazine (drafts
+                              incl.):{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.receivedSharesCount
