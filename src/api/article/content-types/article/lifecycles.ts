@@ -55,7 +55,7 @@ const sendEmails = async (
       to: recipient,
       from: env("SMTP_EMAIL"),
       replyTo: env("SMTP_EMAIL"),
-      subject: env("ENVIRONMENT") === "development" ?  `TEST ${title}` : title,
+      subject: env("ENVIRONMENT") === "development" ? `TEST ${title}` : title,
       html: template({
         articleTitle: article.title,
         name: `${creatorOrUpdater.firstname}`,
