@@ -85,6 +85,12 @@ export default {
       throw new ValidationError('Language is required to create a translation request');
     }
 
+    const connectedArticle = await strapi.entityService.findOne('api::article.article', data.article.connect[0].id, {
+      populate: ["subscribers", "language"]
+    }) as any;
+
+    data.original_language.id = connectedArticle.language.id
+
     const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
       populate: ['article'],
       filters: {

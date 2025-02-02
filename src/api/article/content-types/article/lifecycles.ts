@@ -119,8 +119,14 @@ export default {
 
     if (!article) return;
 
-    // * Guard clause to prevent adding or publishing an article without an origin
     const isUnpublishingArticle = article.publishedAt !== null && data.publishedAt === null;
+
+    // * Guard clause to prevent adding or publishing an article without a language
+    const isUpdatedWithLangugeRemoved = data.language?.disconnect?.length !== 0 && data.language?.connect?.length === 0;
+
+    if (!isUnpublishingArticle && isUpdatedWithLangugeRemoved) throw new ValidationError('All articles need to have a language associated with them');
+
+    // * Guard clause to prevent adding or publishing an article without an origin
 
     const isWithoutAndNotAddingOrigin = !article.origin && data.origin?.connect?.length === 0;
     const isUpdatedWithOriginRemoved = data.origin?.disconnect?.length !== 0 && data.origin?.connect?.length === 0;
@@ -139,6 +145,46 @@ export default {
 
     // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
+    // * Handle original language change fot translation requests
+    if (data.language?.disconnect?.length === 1 && data.language?.connect?.length === 1) {
+      const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+        populate: ['article', 'original_language', 'language'],
+        filters: {
+          article: {
+            id: {
+              $eq: data.id
+            }
+          },
+        },
+      })
+
+      //  @ts-expect-error
+      if (translationRequests.length > 0) {
+        //  @ts-expect-error
+        for (let i = 0; i < translationRequests.length; i++) {
+          const translationRequest = translationRequests[i]
+
+          const knex = strapi.db.connection;
+
+          await knex.transaction(async (trx) => {
+            await trx('translation_requests_original_language_links')
+              .where('translation_request_id', '=', translationRequest.id)
+              .del();
+            await trx.raw(`
+      INSERT INTO translation_requests_original_language_links (translation_request_id, language_id)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE language_id = VALUES(language_id)
+    `, [translationRequest.id, data.language.connect[0].id]);
+            const updatedRow = await trx('translation_requests_original_language_links')
+              .where('translation_request_id', '=', translationRequest.id)
+              .first();
+
+            return updatedRow;
+          });
+        }
+      }
+    }
+
     // * If the article is not published
     if (!article.publishedAt && data.publishedAt) {
       // ! TODO when you try to update an article in draft that has shared urls without a magazine or you try to disconnect the magazine and save it
@@ -148,7 +194,7 @@ export default {
 
       const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id);
 
-      
+
 
       administrators = await strapi.query("admin::user").findMany();
 

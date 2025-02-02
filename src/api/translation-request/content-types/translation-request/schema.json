@@ -45,12 +45,22 @@
       "inversedBy": "translation_requests"
     },
     "attachments": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images",
         "files"
       ],
       "type": "media",
       "multiple": true
+      ]
+    },
+    "original_language": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::language.language"
+    },
     }
   }
 }
