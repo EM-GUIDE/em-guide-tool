@@ -1,4 +1,5 @@
 import { renderReactToMjml } from "./render";
+import { env } from "@strapi/utils";
 
 import {
   MjmlButton,
@@ -38,7 +39,7 @@ export const createArticleShareEmailTemplate = ({
     <Mjml>
       <MjmlHead>
         <MjmlTitle>
-          EM GUIDE | {newUrlWithMagazine.sharerMagazine} has just shared{" "}
+          { env("ENVIRONMENT") === "development"  &&  'TEST' }EM GUIDE | {newUrlWithMagazine.sharerMagazine} has just shared{" "}
           {newUrlWithMagazine.originName}'s article:{" "}
           {truncateText({ text: articleTitle })}
         </MjmlTitle>
@@ -61,6 +62,7 @@ export const createArticleShareEmailTemplate = ({
             color="#4A4A6A"
             font-family="sans-serif"
           >
+            { env("ENVIRONMENT") === "development"  &&  'TEST' } 
             {newUrlWithMagazine.sharerMagazine} has just shared{" "}
             {newUrlWithMagazine.originName}'s article: <i>{articleTitle}</i>.
           </MjmlText>

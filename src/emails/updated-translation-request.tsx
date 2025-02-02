@@ -1,4 +1,5 @@
 import { renderReactToMjml } from "./render";
+import { env } from "@strapi/utils";
 
 import {
   MjmlButton,
@@ -29,7 +30,7 @@ export const updatedTranslationRequestEmailTemplate = ({
   const { html, errors } = renderReactToMjml(
     <Mjml>
       <MjmlHead>
-        <MjmlTitle>EM GUIDE | Translation request updated</MjmlTitle>
+        <MjmlTitle>{ env("ENVIRONMENT") === "development"  &&  'TEST' } EM GUIDE | Translation request updated</MjmlTitle>
         <MjmlPreview>{name} has updated an translation request you have subscribed to...</MjmlPreview>
       </MjmlHead>
       <MjmlBody width={600}>
@@ -42,7 +43,7 @@ export const updatedTranslationRequestEmailTemplate = ({
             lineHeight="1.5"
             paddingBottom=" 16px"
           >
-            EM GUIDE | Translation request updated
+            { env("ENVIRONMENT") === "development"  &&  'TEST' } EM GUIDE | Translation request updated
           </MjmlText>
           <MjmlDivider padding="16px 0" border-width="1px" border-color="#F6F6F9" />
         </MjmlSection>
