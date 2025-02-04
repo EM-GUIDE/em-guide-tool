@@ -18,6 +18,16 @@
     "date": {
       "type": "date",
       "required": true
+    },
+    "is_translation": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "translation_request": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::translation-request.translation-request"
     }
   }
 }

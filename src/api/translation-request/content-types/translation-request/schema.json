@@ -51,16 +51,12 @@
       "allowedTypes": [
         "images",
         "files"
-      ],
-      "type": "media",
-      "multiple": true
       ]
     },
     "original_language": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::language.language"
-    },
     }
   }
 }

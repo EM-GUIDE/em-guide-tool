@@ -5,7 +5,6 @@ import { errors, env } from "@strapi/utils";
 import { truncateText } from "../../../../emails/utils";
 
 const { ValidationError } = errors;
-
 interface Language {
   id: number,
   name: string,
@@ -68,10 +67,6 @@ const sendEmails = async (
   await Promise.all(promises);
 };
 
-const getNewArticleUrls = (newRawData: any): string[] => {
-  return newRawData.urls.filter(url => !url.id && url.url !== undefined && url.url !== '').map(url => url.url);
-};
-
 export default {
   async beforeCreate(event) {
     console.log('beforeCreate')
@@ -88,6 +83,10 @@ export default {
 
     if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
+    const hasTranslationUrlsWithoutTranslationRequest = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.is_translation && url.translation_request.connect.length === 0);
+
+    if (hasTranslationUrlsWithoutTranslationRequest) throw new ValidationError('All shared urls that are translations need to have a translation request associated with them');
+
     if (!data.subscribers) return
     data.subscribers.connect = [data.createdBy]
   },
@@ -95,6 +94,29 @@ export default {
   async beforeUpdate(event) {
     console.log('beforeUpdate')
     const { data, where } = event.params;
+    const knex = strapi.db.connection;
+
+    const hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently = async (urls: any[]) => {
+      const promises = urls.map(async (url) => {
+        const result = await knex.raw(`
+          SELECT EXISTS (
+              SELECT 1 
+              FROM components_url_original_urls u
+              LEFT JOIN components_url_original_urls_translation_request_links tr 
+              ON u.id = tr.original_urls_id
+              WHERE u.id = ? 
+              AND u.is_translation = true 
+              AND tr.translation_request_id IS NULL
+          ) as exists_and_matches;
+        `, [url.id]);
+
+        const hasEmptyTranslationRequest = url.is_translation && url.translation_request.connect.length !== 1;
+        return Number(result[0][0].exists_and_matches) === 1 && hasEmptyTranslationRequest;
+      });
+
+      const results = await Promise.all(promises);
+      return results.some(result => result === true);
+    };
 
     const article = await strapi.entityService.findOne('api::article.article', where.id, {
       populate: {
@@ -137,11 +159,17 @@ export default {
 
     if (!isUnpublishingArticle && isDisconnectingUrlMagazineWithoutAddingNewOne) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
+    // * Guard clause to prevent adding or publishing an article with translation shared urls without a translation request
+
+    const hasEmptyTranslationUrls = await hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently(newRawData.urls);
+
+    const isDisconnectingTranslationUrlithoutAddingNewOne = newRawData.urls?.some(url => url.is_translation && url.translation_request.disconnect?.length > 0 && url.translation_request.connect?.length === 0);
+
+    if (hasEmptyTranslationUrls || (!isUnpublishingArticle && isDisconnectingTranslationUrlithoutAddingNewOne)) throw new ValidationError('All shared urls that are translations need to have a translation request associated with them');
+
     // ! TODO hasUrlsWithoutMagazin should be implemented somehow...
 
     // const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
-
-    // console.log({hasUrlsWithoutMagazine})
 
     // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
 
@@ -163,8 +191,6 @@ export default {
         //  @ts-expect-error
         for (let i = 0; i < translationRequests.length; i++) {
           const translationRequest = translationRequests[i]
-
-          const knex = strapi.db.connection;
 
           await knex.transaction(async (trx) => {
             await trx('translation_requests_original_language_links')
