@@ -112,6 +112,10 @@ export default {
     if (translationRequests && translationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
+    
+    if(data.translated_by && data.translated_by.connect.length === 0)  {
+      throw new ValidationError('A translator needs to be assigned to the translation request.');
+    }
   },
 
   async afterCreate(event) {

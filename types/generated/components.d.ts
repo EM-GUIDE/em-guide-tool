@@ -41,7 +41,7 @@ export interface UrlOriginalUrls extends Schema.Component {
       'oneToOne',
       'api::translation-request.translation-request'
     >;
-    url: Attribute.String;
+    url: Attribute.String & Attribute.Required;
   };
 }
 

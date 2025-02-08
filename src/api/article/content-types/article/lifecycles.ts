@@ -67,6 +67,29 @@ const sendEmails = async (
   await Promise.all(promises);
 };
 
+const hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently = async (urls: any[]) => {
+  if(!urls) return false;
+  const promises = urls.map(async (url) => {
+    const result = await strapi.db.connection.raw(`
+      SELECT EXISTS (
+          SELECT 1 
+          FROM components_url_original_urls u
+          LEFT JOIN components_url_original_urls_translation_request_links tr 
+          ON u.id = tr.original_urls_id
+          WHERE u.id = ? 
+          AND u.is_translation = true 
+          AND tr.translation_request_id IS NULL
+      ) as exists_and_matches;
+    `, [url.id]);
+
+    const hasEmptyTranslationRequest = url.is_translation && url.translation_request.connect.length !== 1;
+    return Number(result[0][0].exists_and_matches) === 1 && hasEmptyTranslationRequest;
+  });
+
+  const results = await Promise.all(promises);
+  return results.some(result => result === true);
+};
+
 export default {
   async beforeCreate(event) {
     console.log('beforeCreate')
@@ -87,6 +110,8 @@ export default {
 
     if (hasTranslationUrlsWithoutTranslationRequest) throw new ValidationError('All shared urls that are translations need to have a translation request associated with them');
 
+    if(data.language.connect.length === 0) throw new ValidationError('All articles need to have a language associated with them');
+
     if (!data.subscribers) return
     data.subscribers.connect = [data.createdBy]
   },
@@ -96,32 +121,11 @@ export default {
     const { data, where } = event.params;
     const knex = strapi.db.connection;
 
-    const hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently = async (urls: any[]) => {
-      const promises = urls.map(async (url) => {
-        const result = await knex.raw(`
-          SELECT EXISTS (
-              SELECT 1 
-              FROM components_url_original_urls u
-              LEFT JOIN components_url_original_urls_translation_request_links tr 
-              ON u.id = tr.original_urls_id
-              WHERE u.id = ? 
-              AND u.is_translation = true 
-              AND tr.translation_request_id IS NULL
-          ) as exists_and_matches;
-        `, [url.id]);
-
-        const hasEmptyTranslationRequest = url.is_translation && url.translation_request.connect.length !== 1;
-        return Number(result[0][0].exists_and_matches) === 1 && hasEmptyTranslationRequest;
-      });
-
-      const results = await Promise.all(promises);
-      return results.some(result => result === true);
-    };
-
     const article = await strapi.entityService.findOne('api::article.article', where.id, {
       populate: {
         urls: true,
         subscribers: true,
+        language: true,
         origin: {
           populate: {
             name: true
@@ -142,11 +146,13 @@ export default {
     if (!article) return;
 
     const isUnpublishingArticle = article.publishedAt !== null && data.publishedAt === null;
+    const isPublishingArticle = article.publishedAt === null && data.publishedAt !== null;
+
 
     // * Guard clause to prevent adding or publishing an article without a language
-    const isUpdatedWithLangugeRemoved = data.language?.disconnect?.length !== 0 && data.language?.connect?.length === 0;
+    const isUpdatedWithLanguageRemoved = data.language?.disconnect?.length !== 0 && data.language?.connect?.length === 0;
 
-    if (!isUnpublishingArticle && isUpdatedWithLangugeRemoved) throw new ValidationError('All articles need to have a language associated with them');
+    if ((!article.language && data.language.connect.length === 0) || (!isUnpublishingArticle && isUpdatedWithLanguageRemoved)) throw new ValidationError('All articles need to have a language associated with them');
 
     // * Guard clause to prevent adding or publishing an article without an origin
 
@@ -219,8 +225,6 @@ export default {
       // ! If origin is already added 
 
       const origin = await strapi.entityService.findOne('api::magazine.magazine', isNotUpdatingExistingOrigin ? article.origin.id : data.origin?.connect[0].id);
-
-
 
       administrators = await strapi.query("admin::user").findMany();
 

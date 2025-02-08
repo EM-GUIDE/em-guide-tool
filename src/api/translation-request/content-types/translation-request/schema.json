@@ -57,6 +57,12 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::language.language"
+    },
+    "translated_by": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::magazine.magazine",
+      "inversedBy": "translated_atricles"
     }
   }
 }

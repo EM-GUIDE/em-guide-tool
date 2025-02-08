@@ -556,6 +556,11 @@ export interface ApiMagazineMagazine extends Schema.CollectionType {
       Attribute.Private;
     name: Attribute.String & Attribute.Required;
     slug: Attribute.UID<'api::magazine.magazine', 'name'> & Attribute.Required;
+    translated_atricles: Attribute.Relation<
+      'api::magazine.magazine',
+      'oneToMany',
+      'api::translation-request.translation-request'
+    >;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
       'api::magazine.magazine',
@@ -612,6 +617,11 @@ export interface ApiTranslationRequestTranslationRequest
     > &
       Attribute.Required &
       Attribute.DefaultTo<'open'>;
+    translated_by: Attribute.Relation<
+      'api::translation-request.translation-request',
+      'manyToOne',
+      'api::magazine.magazine'
+    >;
     translationData: Attribute.String;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<

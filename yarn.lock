@@ -1900,12 +1900,28 @@
     react-query "3.39.3"
     react-select "5.7.0"
 
-"@strapi/helper-plugin@^4.20.0", "@strapi/helper-plugin@^4.25.2":
+"@strapi/helper-plugin@^4.20.0":
   version "4.25.2"
   resolved "https://registry.yarnpkg.com/@strapi/helper-plugin/-/helper-plugin-4.25.2.tgz#91e957913f11108f09aee434d70f7af1f293e10f"
   integrity sha512-46yuZQMDlW6ZJeVe14xHXtMSFmt5TDh96lVtFLNEs6Cu2QFSwK3JL1v+i6l40g60WN2pGYLCbAjqEzcDoB/1qg==
   dependencies:
     axios "1.6.0"
+    date-fns "2.30.0"
+    formik "2.4.0"
+    immer "9.0.19"
+    lodash "4.17.21"
+    qs "6.11.1"
+    react-helmet "6.1.0"
+    react-intl "6.4.1"
+    react-query "3.39.3"
+    react-select "5.7.0"
+
+"@strapi/helper-plugin@^4.25.12":
+  version "4.25.12"
+  resolved "https://registry.yarnpkg.com/@strapi/helper-plugin/-/helper-plugin-4.25.12.tgz#50db8649d589b6140f2ed995f81720b5be424bd9"
+  integrity sha512-W4Jl+r0XaLZI1yfIEq/SIjrCiOojSG+x/+A92hK4wgwYlNVd5Iw7oQB8VVj935JQbpFzwQhMGCPrth1NaL7sWg==
+  dependencies:
+    axios "1.7.4"
     date-fns "2.30.0"
     formik "2.4.0"
     immer "9.0.19"
