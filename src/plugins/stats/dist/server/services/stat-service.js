@@ -44,12 +44,18 @@ function calculateAllShares(articles, magazines) {
             articles: [],
             articlesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {}),
             receivedSharesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {}),
-            madeSharesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {})
+            madeSharesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {}),
+            translatedArticlesCount: 0,
+            translatedArticlesByMonth: months.reduce((acc, month) => ({ ...acc, [month]: 0 }), {}),
         });
         (_a = magazine.articles) === null || _a === void 0 ? void 0 : _a.forEach((article) => {
             var _a;
-            if (article.urls && ((_a = article.urls) === null || _a === void 0 ? void 0 : _a.length) > 0)
+            if (article.urls && ((_a = article.urls) === null || _a === void 0 ? void 0 : _a.length) > 0) {
                 sharesMap.get(magazine.id).articlesSharedByOtherMagazinesCount += 1;
+                // article.urls.forEach((url: ArticleUrl) => {
+                //   if (url.is_translation === true) sharesMap.get(magazine.id)!.translatedArticlesCount += 1;
+                // });
+            }
             const monthIndex = new Date(article.publishedAt).getMonth();
             const monthName = months[monthIndex];
             const magazineEntry = sharesMap.get(magazine.id);
@@ -89,6 +95,10 @@ function calculateAllShares(articles, magazines) {
                 });
                 sharedMagazine.receivedSharesByMonth[abbreviatedMonth] += 1;
                 sharesMap.set(article.origin.id, sharedMagazine);
+                if (url.is_translation === true) {
+                    sharedMagazine.translatedArticlesCount += 1;
+                    sharedMagazine.translatedArticlesByMonth[abbreviatedMonth] += 1;
+                }
             }
         });
     });
@@ -104,9 +114,33 @@ function calculateAllShares(articles, magazines) {
     });
     return Array.from(sharesMap.entries());
 }
+function calculateLanguages(articles) {
+    const fromLanguages = new Map();
+    const toLanguages = new Map();
+    articles.forEach((article) => {
+        var _a;
+        // @ts-expect-error
+        (_a = article.urls) === null || _a === void 0 ? void 0 : _a.forEach((url) => {
+            if (!article.language)
+                return;
+            // @ts-expect-error
+            if (url.is_translation === true)
+                fromLanguages.set(article.language.code, (fromLanguages.get(article.language.code) || 0) + 1);
+            if (!url.translation_request)
+                return;
+            // @ts-expect-error
+            if (url.is_translation === true)
+                toLanguages.set(url.translation_request.language.code, (fromLanguages.get(url.translation_request.language.code) || 0) + 1);
+        });
+    });
+    return {
+        from: fromLanguages,
+        to: toLanguages
+    };
+}
 exports.default = ({ strapi }) => ({
     async getArticlesPerMag() {
-        var _a, _b;
+        var _a, _b, _c;
         const magazines = await ((_a = strapi.entityService) === null || _a === void 0 ? void 0 : _a.findMany("api::magazine.magazine", {
             populate: {
                 articles: {
@@ -120,14 +154,39 @@ exports.default = ({ strapi }) => ({
         }));
         const articles = await ((_b = strapi.entityService) === null || _b === void 0 ? void 0 : _b.findMany("api::article.article", {
             populate: {
+                language: true,
                 origin: true,
                 urls: {
-                    populate: ["magazine, created_at"],
+                    populate: {
+                        magazine: true,
+                        created_at: true,
+                        is_translation: true,
+                        translation_request: {
+                            populate: {
+                                language: true
+                            }
+                        }
+                    }
                 },
             },
         }));
+        const languages = await ((_c = strapi.entityService) === null || _c === void 0 ? void 0 : _c.findMany("api::language.language"));
+        // @ts-expect-error
+        const translationCounts = calculateLanguages(articles);
         // @ts-expect-error
         const allShares = calculateAllShares(articles, magazines);
-        return { articles, magazines, allShares };
+        const translations = {
+            from: languages === null || languages === void 0 ? void 0 : languages.map((language) => ({
+                name: language.name,
+                code: language.code,
+                count: translationCounts.from.get(language.code) || 0,
+            })),
+            to: languages === null || languages === void 0 ? void 0 : languages.map((language) => ({
+                name: language.name,
+                code: language.code,
+                count: translationCounts.to.get(language.code) || 0,
+            })),
+        };
+        return { articles, magazines, allShares, translations };
     },
 });

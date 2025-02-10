@@ -68,8 +68,6 @@ const StatsPage = () => {
     return deserializedMap;
   };
 
-  console.log(data?.data);
-
   const queryData = data?.data;
 
   let decodedAllShares;
@@ -113,7 +111,7 @@ const StatsPage = () => {
           {
             label: `EM GUIDE's total number of shared articles (drafts incl.)`,
             value: "totalSharesCount",
-          },
+          }
         ],
       };
 
@@ -172,7 +170,7 @@ const StatsPage = () => {
             value: "totalNumberOfArticles",
           },
           {
-            label: `Original articles my month (drafts excl.)`,
+            label: `Original articles by month (drafts excl.)`,
             value: "articlesByMonth",
           },
           {
@@ -318,7 +316,7 @@ const StatsPage = () => {
                     plugins: {
                       title: {
                         display: true,
-                        text: "Original articles my magazine (drafts excl.)",
+                        text: "Original articles by magazine (drafts excl.)",
                         font: {
                           weight: "bold",
                           size: 14,
@@ -400,7 +398,7 @@ const StatsPage = () => {
                     plugins: {
                       title: {
                         display: true,
-                        text: "Original articles my month (drafts excl.)",
+                        text: "Original articles by month (drafts excl.)",
                         font: {
                           weight: "bold",
                           size: 14,
@@ -468,6 +466,122 @@ const StatsPage = () => {
               </Box>
             )}
           </GridItem>
+          <GridItem col={12} s={12}>
+            {isLoading && <Loader />}
+            {queryData?.translations && (
+              <Box
+                background="neutral0"
+                hasRadius
+                padding={[6, 6, 1]}
+                shadow="tableShadow"
+              >
+                <Typography as="h3" variant="beta">
+                  Languages
+                </Typography>
+                <Flex
+                  alignItems="center"
+                  justifyContent="center"
+                  direction="column"
+                  padding={8}
+                  gap={4}
+                >
+                  {queryData?.translations.from.map(
+                    (translation: {
+                      name: string;
+                      code: string;
+                      count: number;
+                    }) => (
+                      <Typography key={translation.code} as="h3" variant="beta">
+                        Total number of articles (in entire project) translated
+                        into {translation.name}: {translation.count}
+                      </Typography>
+                    )
+                  )}
+                </Flex>
+              </Box>
+            )}
+          </GridItem>
+          {/* <GridItem col={6} s={12}>
+            {isLoading && <Loader />}
+            {queryData?.allShares && queryData?.allShares.length > 0 && (
+              <Box
+                background="neutral0"
+                hasRadius
+                padding={[2, 2, 1]}
+                shadow="tableShadow"
+              >
+                <Bar
+                  options={{
+                    responsive: true,
+                    scales: {
+                      x: {
+                        stacked: true,
+                        grid: {
+                          display: false,
+                        },
+                      },
+                      y: {
+                        display: false,
+                        grid: {
+                          display: false,
+                        },
+                      },
+                    },
+                    plugins: {
+                      title: {
+                        display: true,
+                        text: "Magazine's total number of own translations",
+                        font: {
+                          weight: "bold",
+                          size: 14,
+                        },
+                      },
+                      datalabels: {
+                        color: "rgb(123, 121, 255)",
+                        font: {
+                          weight: "bold",
+                          size: 14,
+                        },
+                      },
+                      tooltip: {
+                        enabled: true,
+                        callbacks: {
+                          label: function (context) {
+                            let label = context.dataset.label || "";
+                            if (label) {
+                              label += ": ";
+                            }
+                            if (context.parsed.y !== null) {
+                              label += context.parsed.y;
+                            }
+                            return label;
+                          },
+                        },
+                      },
+                    },
+                  }}
+                  data={{
+                    labels: queryData?.allShares?.map(
+                      (item: any) => item[1].name
+                    ),
+                    datasets: [
+                      {
+                        label: "Number of own translations",
+                        data: queryData?.allShares?.map(
+                          (item: any) => item[1].translatedArticlesCount
+                        ),
+                        backgroundColor: "rgb(217, 216, 255)",
+                        borderColor: "rgb(123, 121, 255)",
+                        borderWidth: 2,
+                        hoverBackgroundColor: "rgb(217, 216, 255)",
+                        borderRadius: 4,
+                      },
+                    ],
+                  }}
+                />
+              </Box>
+            )}
+          </GridItem> */}
         </Grid>
         <Box paddingTop={8} paddingBottom={4}>
           <Typography as="h3" variant="beta">
@@ -518,13 +632,23 @@ const StatsPage = () => {
                             </Typography>
                           </Box>
 
-                          <Box marginBottom={4}>
+                          <Box marginBottom={2}>
                             <Typography as="h3" variant="beta">
                               Magazine's total number of shared articles (drafts
                               incl.):{" "}
                               {
                                 decodedAllShares.get(magazine.id)
                                   ?.madeSharesCount
+                              }
+                            </Typography>
+                          </Box>
+
+                          <Box marginBottom={4}>
+                            <Typography as="h3" variant="beta">
+                              Magazine's total number of own translations:{" "}
+                              {
+                                decodedAllShares.get(magazine.id)
+                                  ?.translatedArticlesCount
                               }
                             </Typography>
                           </Box>
@@ -692,7 +816,7 @@ const StatsPage = () => {
                                     plugins: {
                                       title: {
                                         display: true,
-                                        text: "Original articles my month (drafts excl.)",
+                                        text: "Original articles by month (drafts excl.)",
                                         font: {
                                           weight: "bold",
                                           size: 14,
@@ -867,6 +991,103 @@ const StatsPage = () => {
                                 />
                               </Box>
                             )}
+                        </GridItem>
+                        <GridItem col={6}>
+                          {isLoading && <Loader />}
+                          {decodedAllShares.get(magazine.id) && (
+                            <Box
+                              background="neutral0"
+                              hasRadius
+                              padding={[2, 2, 1]}
+                              shadow="tableShadow"
+                            >
+                              <Bar
+                                height={300}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  scales: {
+                                    x: {
+                                      stacked: true,
+                                      grid: {
+                                        display: false,
+                                      },
+                                    },
+                                    y: {
+                                      display: false,
+                                      grid: {
+                                        display: false,
+                                      },
+                                    },
+                                  },
+                                  plugins: {
+                                    title: {
+                                      display: true,
+                                      text: "Magazine's total number of own translations",
+                                      font: {
+                                        weight: "bold",
+                                        size: 14,
+                                      },
+                                    },
+                                    datalabels: {
+                                      color: "rgb(123, 121, 255)",
+                                      font: {
+                                        weight: "bold",
+                                        size: 14,
+                                      },
+                                    },
+                                    tooltip: {
+                                      enabled: true,
+                                      callbacks: {
+                                        label: function (context) {
+                                          let label =
+                                            context.dataset.label || "";
+                                          if (label) {
+                                            label += ": ";
+                                          }
+                                          if (context.parsed.y !== null) {
+                                            label += context.parsed.y;
+                                          }
+                                          return label;
+                                        },
+                                      },
+                                    },
+                                  },
+                                }}
+                                data={{
+                                  labels: [
+                                    "jan",
+                                    "feb",
+                                    "mar",
+                                    "apr",
+                                    "may",
+                                    "jun",
+                                    "jul",
+                                    "aug",
+                                    "sep",
+                                    "oct",
+                                    "nov",
+                                    "dec",
+                                  ],
+                                  datasets: [
+                                    {
+                                      label: "Number of own translations",
+                                      data: Object.values(
+                                          decodedAllShares.get(magazine.id)
+                                            ?.translatedArticlesByMonth
+                                      ),
+                                      backgroundColor: "rgb(217, 216, 255)",
+                                      borderColor: "rgb(123, 121, 255)",
+                                      borderWidth: 2,
+                                      hoverBackgroundColor:
+                                        "rgb(217, 216, 255)",
+                                      borderRadius: 4,
+                                    },
+                                  ],
+                                }}
+                              />
+                            </Box>
+                          )}
                         </GridItem>
                       </Grid>
                     </Flex>
