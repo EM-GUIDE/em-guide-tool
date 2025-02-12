@@ -74,7 +74,6 @@ const StatsPage = () => {
 
   if (queryData?.allShares) {
     decodedAllShares = arrayToMap(queryData?.allShares);
-    console.log(decodedAllShares);
   }
 
   const getCsvFileNameTimestamp = () => {
@@ -111,7 +110,7 @@ const StatsPage = () => {
           {
             label: `EM GUIDE's total number of shared articles (drafts incl.)`,
             value: "totalSharesCount",
-          }
+          },
         ],
       };
 
@@ -466,6 +465,7 @@ const StatsPage = () => {
               </Box>
             )}
           </GridItem>
+
           <GridItem col={12} s={12}>
             {isLoading && <Loader />}
             {queryData?.translations && (
@@ -476,7 +476,7 @@ const StatsPage = () => {
                 shadow="tableShadow"
               >
                 <Typography as="h3" variant="beta">
-                  Languages
+                  Translations from
                 </Typography>
                 <Flex
                   alignItems="center"
@@ -493,6 +493,41 @@ const StatsPage = () => {
                     }) => (
                       <Typography key={translation.code} as="h3" variant="beta">
                         Total number of articles (in entire project) translated
+                        from {translation.name}: {translation.count}
+                      </Typography>
+                    )
+                  )}
+                </Flex>
+              </Box>
+            )}
+          </GridItem>
+          <GridItem col={12} s={12}>
+            {isLoading && <Loader />}
+            {queryData?.translations && (
+              <Box
+                background="neutral0"
+                hasRadius
+                padding={[6, 6, 1]}
+                shadow="tableShadow"
+              >
+                <Typography as="h3" variant="beta">
+                  Translations to
+                </Typography>
+                <Flex
+                  alignItems="center"
+                  justifyContent="center"
+                  direction="column"
+                  padding={8}
+                  gap={4}
+                >
+                  {queryData?.translations.to.map(
+                    (translation: {
+                      name: string;
+                      code: string;
+                      count: number;
+                    }) => (
+                      <Typography key={translation.code} as="h3" variant="beta">
+                        Total number of articles (in entire project) translated
                         into {translation.name}: {translation.count}
                       </Typography>
                     )
@@ -501,87 +536,6 @@ const StatsPage = () => {
               </Box>
             )}
           </GridItem>
-          {/* <GridItem col={6} s={12}>
-            {isLoading && <Loader />}
-            {queryData?.allShares && queryData?.allShares.length > 0 && (
-              <Box
-                background="neutral0"
-                hasRadius
-                padding={[2, 2, 1]}
-                shadow="tableShadow"
-              >
-                <Bar
-                  options={{
-                    responsive: true,
-                    scales: {
-                      x: {
-                        stacked: true,
-                        grid: {
-                          display: false,
-                        },
-                      },
-                      y: {
-                        display: false,
-                        grid: {
-                          display: false,
-                        },
-                      },
-                    },
-                    plugins: {
-                      title: {
-                        display: true,
-                        text: "Magazine's total number of own translations",
-                        font: {
-                          weight: "bold",
-                          size: 14,
-                        },
-                      },
-                      datalabels: {
-                        color: "rgb(123, 121, 255)",
-                        font: {
-                          weight: "bold",
-                          size: 14,
-                        },
-                      },
-                      tooltip: {
-                        enabled: true,
-                        callbacks: {
-                          label: function (context) {
-                            let label = context.dataset.label || "";
-                            if (label) {
-                              label += ": ";
-                            }
-                            if (context.parsed.y !== null) {
-                              label += context.parsed.y;
-                            }
-                            return label;
-                          },
-                        },
-                      },
-                    },
-                  }}
-                  data={{
-                    labels: queryData?.allShares?.map(
-                      (item: any) => item[1].name
-                    ),
-                    datasets: [
-                      {
-                        label: "Number of own translations",
-                        data: queryData?.allShares?.map(
-                          (item: any) => item[1].translatedArticlesCount
-                        ),
-                        backgroundColor: "rgb(217, 216, 255)",
-                        borderColor: "rgb(123, 121, 255)",
-                        borderWidth: 2,
-                        hoverBackgroundColor: "rgb(217, 216, 255)",
-                        borderRadius: 4,
-                      },
-                    ],
-                  }}
-                />
-              </Box>
-            )}
-          </GridItem> */}
         </Grid>
         <Box paddingTop={8} paddingBottom={4}>
           <Typography as="h3" variant="beta">
@@ -647,8 +601,11 @@ const StatsPage = () => {
                             <Typography as="h3" variant="beta">
                               Magazine's total number of own translations:{" "}
                               {
-                                decodedAllShares.get(magazine.id)
-                                  ?.translatedArticlesCount
+                                queryData?.translations.translationRequests.filter(
+                                  (translationRequest: any) =>
+                                    translationRequest.translated_by?.id ===
+                                    magazine.id
+                                ).length
                               }
                             </Typography>
                           </Box>
@@ -1073,8 +1030,8 @@ const StatsPage = () => {
                                     {
                                       label: "Number of own translations",
                                       data: Object.values(
-                                          decodedAllShares.get(magazine.id)
-                                            ?.translatedArticlesByMonth
+                                        decodedAllShares.get(magazine.id)
+                                          ?.translatedArticlesByMonth
                                       ),
                                       backgroundColor: "rgb(217, 216, 255)",
                                       borderColor: "rgb(123, 121, 255)",

@@ -54,7 +54,7 @@ function summarizeArray(items: { name: string; id: number }[]): SummaryItem[] {
 
   return summarizedItems;
 }
-function calculateAllShares(articles: any[], magazines: any[]) {
+function calculateAllShares(articles: any[], magazines: any[], translationRequests: any[]) {
   const sharesMap = new Map<number, MagazineShares>();
 
   const months = [
@@ -102,6 +102,22 @@ function calculateAllShares(articles: any[], magazines: any[]) {
         (acc, month) => ({ ...acc, [month]: 0 }),
         {}
       ),
+    });
+
+    translationRequests.forEach((translationRequest) => {
+      if (translationRequest.translated_by?.id === magazine.id) {
+        const magazineStats = sharesMap.get(magazine.id);
+        if (magazineStats) {
+          magazineStats.translatedArticlesCount += 1;
+          
+          const currentDate = new Date(translationRequest.createdAt);
+          const monthIndex = currentDate.getMonth();
+          const abbreviatedMonth = getAbbreviatedMonth(monthIndex);
+          
+          magazineStats.translatedArticlesByMonth[abbreviatedMonth] += 1;
+          sharesMap.set(magazine.id, magazineStats);
+        }
+      }
     });
 
     magazine.articles?.forEach((article: any) => {
@@ -161,10 +177,10 @@ function calculateAllShares(articles: any[], magazines: any[]) {
 
         sharesMap.set(article.origin.id, sharedMagazine);
 
-        if(url.is_translation === true) {  
-          sharedMagazine.translatedArticlesCount += 1;
-          sharedMagazine.translatedArticlesByMonth[abbreviatedMonth] += 1;
-        }
+        // if (url.is_translation === true) {
+        //   sharedMagazine.translatedArticlesCount += 1;
+        //   sharedMagazine.translatedArticlesByMonth[abbreviatedMonth] += 1;
+        // }
       }
     });
   });
@@ -184,20 +200,17 @@ function calculateAllShares(articles: any[], magazines: any[]) {
   return Array.from(sharesMap.entries());
 }
 
-function calculateLanguages(articles: Article[]) {
+function calculateLanguages(translationRequests: TranslationRequest[]) {
   const fromLanguages = new Map<string, number>();
   const toLanguages = new Map<string, number>();
 
-  articles.forEach((article) => {
+  translationRequests.forEach((translationRequest) => {
+
     // @ts-expect-error
-    article.urls?.forEach((url: ArticleUrl) => {
-      if (!article.language) return;
-      // @ts-expect-error
-      if (url.is_translation === true) fromLanguages.set(article.language.code, (fromLanguages.get(article.language.code) || 0) + 1);
-      if (!url.translation_request) return
-      // @ts-expect-error
-      if (url.is_translation === true) toLanguages.set(url.translation_request.language.code, (fromLanguages.get(url.translation_request.language.code) || 0) + 1);
-    });
+    if (translationRequest?.original_language?.code) fromLanguages.set(translationRequest.original_language.code, (fromLanguages.get(translationRequest.original_language.code) || 0) + 1);
+
+    // @ts-expect-error
+    if (translationRequest?.language?.code) toLanguages.set(translationRequest.language.code, (fromLanguages.get(translationRequest.language.code) || 0) + 1);
   });
 
   return {
@@ -218,7 +231,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
                 populate: ["urls", "magazine"],
               },
             },
-          },
+          }
         },
       }
     );
@@ -245,13 +258,45 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       }
     );
 
+    const translationRequests = await strapi.entityService?.findMany(
+      "api::translation-request.translation-request",
+      {
+        populate: {
+          original_language: true,
+          language: true,
+          status: true,
+          translated_by: true,
+          article: {
+            populate: {
+              language: true,
+              origin: true,
+              urls: {
+                populate: {
+                  magazine: true,
+                  created_at: true,
+                  is_translation: true,
+                  translation_request: {
+                    populate: {
+                      language: true
+                    }
+                  }
+                }
+              },
+            },
+          },
+          created_at: true
+
+        },
+      }
+    );
+
     const languages = await strapi.entityService?.findMany(
       "api::language.language"
     );
     // @ts-expect-error
-    const translationCounts = calculateLanguages(articles);
+    const translationCounts = calculateLanguages(translationRequests);
     // @ts-expect-error
-    const allShares = calculateAllShares(articles, magazines);
+    const allShares = calculateAllShares(articles, magazines, translationRequests);
 
     const translations = {
       from: languages?.map((language) => ({
@@ -264,6 +309,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         code: language.code,
         count: translationCounts.to.get(language.code) || 0,
       })),
+      translationRequests
     }
 
     return { articles, magazines, allShares, translations };
