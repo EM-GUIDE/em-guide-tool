@@ -612,6 +612,7 @@ export interface ApiTranslationRequestTranslationRequest
       'oneToOne',
       'api::language.language'
     >;
+    relation_title_workaround: Attribute.String;
     status: Attribute.Enumeration<
       ['open', 'claimed', 'in_progress', 'in_review', 'flagged', 'done']
     > &

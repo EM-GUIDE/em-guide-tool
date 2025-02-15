@@ -89,6 +89,10 @@ export default {
       populate: ["subscribers", "language"]
     }) as any;
 
+    if (!connectedArticle) {
+      throw new ValidationError('Article not found');
+    }
+
     data.original_language.id = connectedArticle.language.id
 
     const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
@@ -116,6 +120,8 @@ export default {
     if(data.translated_by && data.translated_by.connect.length === 0)  {
       throw new ValidationError('A translator needs to be assigned to the translation request.');
     }
+
+    data.relation_title_workaround = `${connectedArticle.title} - ${connectedArticle.language.name}`
   },
 
   async afterCreate(event) {
