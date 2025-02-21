@@ -486,6 +486,20 @@ const StatsPage = () => {
                   gap={4}
                 >
                   {queryData?.translations.from
+                    .toSorted(
+                      (
+                        a: {
+                          name: string;
+                          code: string;
+                          count: number;
+                        },
+                        b: {
+                          name: string;
+                          code: string;
+                          count: number;
+                        }
+                      ) => b.count - a.count
+                    )
                     .map(
                       (translation: {
                         name: string;
@@ -502,20 +516,6 @@ const StatsPage = () => {
                           {translation.count}
                         </Typography>
                       )
-                    )
-                    .toSorted(
-                      (
-                        a: {
-                          name: string;
-                          code: string;
-                          count: number;
-                        },
-                        b: {
-                          name: string;
-                          code: string;
-                          count: number;
-                        }
-                      ) => b.count - a.count
                     )}
                 </Flex>
               </Box>
@@ -541,6 +541,20 @@ const StatsPage = () => {
                   gap={4}
                 >
                   {queryData?.translations.to
+                    .toSorted(
+                      (
+                        a: {
+                          name: string;
+                          code: string;
+                          count: number;
+                        },
+                        b: {
+                          name: string;
+                          code: string;
+                          count: number;
+                        }
+                      ) => b.count - a.count
+                    )
                     .map(
                       (translation: {
                         name: string;
@@ -557,20 +571,6 @@ const StatsPage = () => {
                           {translation.count}
                         </Typography>
                       )
-                    )
-                    .toSorted(
-                      (
-                        a: {
-                          name: string;
-                          code: string;
-                          count: number;
-                        },
-                        b: {
-                          name: string;
-                          code: string;
-                          count: number;
-                        }
-                      ) => b.count - a.count
                     )}
                 </Flex>
               </Box>
