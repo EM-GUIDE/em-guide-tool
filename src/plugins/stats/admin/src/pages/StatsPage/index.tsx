@@ -540,18 +540,38 @@ const StatsPage = () => {
                   padding={8}
                   gap={4}
                 >
-                  {queryData?.translations.to.map(
-                    (translation: {
-                      name: string;
-                      code: string;
-                      count: number;
-                    }) => (
-                      <Typography key={translation.code} as="h3" variant="beta">
-                        Total number of articles (in entire project) translated
-                        into {translation.name}: {translation.count}
-                      </Typography>
+                  {queryData?.translations.to
+                    .map(
+                      (translation: {
+                        name: string;
+                        code: string;
+                        count: number;
+                      }) => (
+                        <Typography
+                          key={translation.code}
+                          as="h3"
+                          variant="beta"
+                        >
+                          Total number of articles (in entire project)
+                          translated into {translation.name}:{" "}
+                          {translation.count}
+                        </Typography>
+                      )
                     )
-                  )}
+                    .toSorted(
+                      (
+                        a: {
+                          name: string;
+                          code: string;
+                          count: number;
+                        },
+                        b: {
+                          name: string;
+                          code: string;
+                          count: number;
+                        }
+                      ) => b.count - a.count
+                    )}
                 </Flex>
               </Box>
             )}
