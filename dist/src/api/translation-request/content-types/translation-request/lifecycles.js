@@ -10,7 +10,7 @@ const sendEmails = async (recipients, template, title, article, translationReque
             to: recipient,
             from: (0, utils_1.env)('SMTP_EMAIL'),
             replyTo: (0, utils_1.env)('SMTP_EMAIL'),
-            subject: title,
+            subject: (0, utils_1.env)("ENVIRONMENT") === "development" ? `TEST ${title}` : title,
             html: template({
                 articleTitle: article.title,
                 language: translationRequest.language.name,
@@ -31,6 +31,13 @@ exports.default = {
         if (data.language.connect.length === 0) {
             throw new ValidationError('Language is required to create a translation request');
         }
+        const connectedArticle = await strapi.entityService.findOne('api::article.article', data.article.connect[0].id, {
+            populate: ["subscribers", "language"]
+        });
+        if (!connectedArticle) {
+            throw new ValidationError('Article not found');
+        }
+        data.original_language.id = connectedArticle.language.id;
         const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
             populate: ['article'],
             filters: {
@@ -51,6 +58,10 @@ exports.default = {
         if (translationRequests && translationRequests.length > 0) {
             throw new ValidationError('A translation request for this article in this language already exists.');
         }
+        if (data.translated_by && data.translated_by.connect.length === 0) {
+            throw new ValidationError('A translator needs to be assigned to the translation request.');
+        }
+        data.relation_title_workaround = `${connectedArticle.title} - ${connectedArticle.language.name}`;
     },
     async afterCreate(event) {
         const { result, params } = event;

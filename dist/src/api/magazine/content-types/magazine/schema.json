@@ -30,6 +30,12 @@
             "relation": "oneToMany",
             "target": "api::article.article",
             "mappedBy": "origin"
+        },
+        "translated_atricles": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::translation-request.translation-request",
+            "mappedBy": "translated_by"
         }
     }
 }

@@ -3,6 +3,7 @@ import { createArticleShareEmailTemplate } from "../../../../emails/share-articl
 // import { updatedArticleEmailTemplate } from "../../../../emails/updated-article";
 import { errors, env } from "@strapi/utils";
 import { truncateText } from "../../../../emails/utils";
+const util = require('util');
 
 const { ValidationError } = errors;
 interface Language {
@@ -68,8 +69,10 @@ const sendEmails = async (
 };
 
 const hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently = async (urls: any[]) => {
-  if(!urls) return false;
+  if (!urls) return false;
+
   const promises = urls.map(async (url) => {
+    if (!url.id) return false;
     const result = await strapi.db.connection.raw(`
       SELECT EXISTS (
           SELECT 1 
@@ -94,13 +97,12 @@ export default {
   async beforeCreate(event) {
     console.log('beforeCreate')
     const { data } = event.params;
+    const ctx = strapi.requestContext.get();
+    const newRawData = ctx.request.body;
 
     const isWithoutOrigin = data.origin?.connect?.length === 0;
 
     if (isWithoutOrigin) throw new ValidationError('Origin is required to create an article');
-
-    const ctx = strapi.requestContext.get();
-    const newRawData = ctx.request.body;
 
     const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
 
@@ -110,10 +112,13 @@ export default {
 
     if (hasTranslationUrlsWithoutTranslationRequest) throw new ValidationError('All shared urls that are translations need to have a translation request associated with them');
 
-    if(data.language.connect.length === 0) throw new ValidationError('All articles need to have a language associated with them');
+    const hasLanguage = data.language.connect.length > 0;
 
-    if (!data.subscribers) return
-    data.subscribers.connect = [data.createdBy]
+    if (!hasLanguage) throw new ValidationError('All articles need to have a language associated with them');
+
+    if (data.subscribers) {
+      data.subscribers.connect = [data.createdBy];
+    }
   },
 
   async beforeUpdate(event) {
@@ -167,55 +172,59 @@ export default {
 
     // * Guard clause to prevent adding or publishing an article with translation shared urls without a translation request
 
+    if (newRawData && newRawData.urls?.some(url => !url.url || url.url.length === 0)) throw new ValidationError('All shared urls need a url');
+
     const hasEmptyTranslationUrls = await hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently(newRawData.urls);
 
     const isDisconnectingTranslationUrlithoutAddingNewOne = newRawData.urls?.some(url => url.is_translation && url.translation_request.disconnect?.length > 0 && url.translation_request.connect?.length === 0);
 
     if (hasEmptyTranslationUrls || (!isUnpublishingArticle && isDisconnectingTranslationUrlithoutAddingNewOne)) throw new ValidationError('All shared urls that are translations need to have a translation request associated with them');
 
-    // ! TODO hasUrlsWithoutMagazin should be implemented somehow...
+    // if ()
 
-    // const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
+      // ! TODO hasUrlsWithoutMagazin should be implemented somehow...
 
-    // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
+      // const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
 
-    // * Handle original language change fot translation requests
-    if (data.language?.disconnect?.length === 1 && data.language?.connect?.length === 1) {
-      const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
-        populate: ['article', 'original_language', 'language'],
-        filters: {
-          article: {
-            id: {
-              $eq: data.id
-            }
+      // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
+
+      // * Handle original language change fot translation requests
+      if (data.language?.disconnect?.length === 1 && data.language?.connect?.length === 1) {
+        const translationRequests = await strapi.entityService.findMany('api::translation-request.translation-request', {
+          populate: ['article', 'original_language', 'language'],
+          filters: {
+            article: {
+              id: {
+                $eq: data.id
+              }
+            },
           },
-        },
-      })
+        })
 
-      //  @ts-expect-error
-      if (translationRequests.length > 0) {
         //  @ts-expect-error
-        for (let i = 0; i < translationRequests.length; i++) {
-          const translationRequest = translationRequests[i]
+        if (translationRequests.length > 0) {
+          //  @ts-expect-error
+          for (let i = 0; i < translationRequests.length; i++) {
+            const translationRequest = translationRequests[i]
 
-          await knex.transaction(async (trx) => {
-            await trx('translation_requests_original_language_links')
-              .where('translation_request_id', '=', translationRequest.id)
-              .del();
-            await trx.raw(`
+            await knex.transaction(async (trx) => {
+              await trx('translation_requests_original_language_links')
+                .where('translation_request_id', '=', translationRequest.id)
+                .del();
+              await trx.raw(`
       INSERT INTO translation_requests_original_language_links (translation_request_id, language_id)
       VALUES (?, ?)
       ON DUPLICATE KEY UPDATE language_id = VALUES(language_id)
     `, [translationRequest.id, data.language.connect[0].id]);
-            const updatedRow = await trx('translation_requests_original_language_links')
-              .where('translation_request_id', '=', translationRequest.id)
-              .first();
+              const updatedRow = await trx('translation_requests_original_language_links')
+                .where('translation_request_id', '=', translationRequest.id)
+                .first();
 
-            return updatedRow;
-          });
+              return updatedRow;
+            });
+          }
         }
       }
-    }
 
     // * If the article is not published
     if (!article.publishedAt && data.publishedAt) {
