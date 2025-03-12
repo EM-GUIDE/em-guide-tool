@@ -25,29 +25,6 @@ const sendEmails = async (recipients, template, title, article, creatorOrUpdater
     });
     await Promise.all(promises);
 };
-const hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently = async (urls) => {
-    if (!urls)
-        return false;
-    const promises = urls.map(async (url) => {
-        if (!url.id)
-            return false;
-        const result = await strapi.db.connection.raw(`
-      SELECT EXISTS (
-          SELECT 1 
-          FROM components_url_original_urls u
-          LEFT JOIN components_url_original_urls_translation_request_links tr 
-          ON u.id = tr.original_urls_id
-          WHERE u.id = ? 
-          AND u.is_translation = true 
-          AND tr.translation_request_id IS NULL
-      ) as exists_and_matches;
-    `, [url.id]);
-        const hasEmptyTranslationRequest = url.is_translation && url.translation_request.connect.length !== 1;
-        return Number(result[0][0].exists_and_matches) === 1 && hasEmptyTranslationRequest;
-    });
-    const results = await Promise.all(promises);
-    return results.some(result => result === true);
-};
 exports.default = {
     async beforeCreate(event) {
         var _a, _b, _c, _d, _e, _f;
@@ -97,7 +74,6 @@ exports.default = {
         if (!article)
             return;
         const isUnpublishingArticle = article.publishedAt !== null && data.publishedAt === null;
-        const isPublishingArticle = article.publishedAt === null && data.publishedAt !== null;
         // * Guard clause to prevent adding or publishing an article without a language
         const isUpdatedWithLanguageRemoved = ((_d = (_c = data.language) === null || _c === void 0 ? void 0 : _c.disconnect) === null || _d === void 0 ? void 0 : _d.length) !== 0 && ((_f = (_e = data.language) === null || _e === void 0 ? void 0 : _e.connect) === null || _f === void 0 ? void 0 : _f.length) === 0;
         if ((!article.language && data.language.connect.length === 0) || (!isUnpublishingArticle && isUpdatedWithLanguageRemoved))
@@ -113,11 +89,9 @@ exports.default = {
         // * Guard clause to prevent adding or publishing an article with translation shared urls without a translation request
         if (newRawData && ((_p = newRawData.urls) === null || _p === void 0 ? void 0 : _p.some(url => !url.url || url.url.length === 0)))
             throw new ValidationError('All shared urls need a url');
-        const hasEmptyTranslationUrls = await hasTranslationUrlsWithoutTranslationRequestsAndIsNotAddingCurrently(newRawData.urls);
         const isDisconnectingTranslationUrlithoutAddingNewOne = (_q = newRawData.urls) === null || _q === void 0 ? void 0 : _q.some(url => { var _a, _b; return url.is_translation && ((_a = url.translation_request.disconnect) === null || _a === void 0 ? void 0 : _a.length) > 0 && ((_b = url.translation_request.connect) === null || _b === void 0 ? void 0 : _b.length) === 0; });
-        if (hasEmptyTranslationUrls || (!isUnpublishingArticle && isDisconnectingTranslationUrlithoutAddingNewOne))
+        if (!isUnpublishingArticle && isDisconnectingTranslationUrlithoutAddingNewOne)
             throw new ValidationError('All shared urls that are translations need to have a translation request associated with them');
-        // if ()
         // ! TODO hasUrlsWithoutMagazin should be implemented somehow...
         // const hasUrlsWithoutMagazine = newRawData?.urls?.length > 0 && newRawData?.urls?.some(url => url.magazine.connect.length === 0);
         // if (hasUrlsWithoutMagazine) throw new ValidationError('All shared urls need to have a magazine associated with them');
