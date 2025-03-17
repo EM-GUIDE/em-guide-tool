@@ -61,16 +61,20 @@ exports.default = {
         if (data.translated_by && data.translated_by.connect.length === 0) {
             throw new ValidationError('A translator needs to be assigned to the translation request.');
         }
-        data.relation_title_workaround = `${connectedArticle.title} - ${connectedArticle.language.name}`;
     },
     async afterCreate(event) {
         const { result, params } = event;
+        const knex = strapi.db.connection;
+        const targetLanguage = await strapi.entityService.findOne('api::language.language', params.data.language.connect[0].id);
         const connectedArticle = await strapi.entityService.findOne('api::article.article', params.data.article.connect[0].id, {
             populate: ["subscribers", "language"]
         });
         if (!connectedArticle) {
             throw new ValidationError('Article not found');
         }
+        await knex('translation_requests').where('id', '=', result.id).update({
+            relation_title_workaround: `${connectedArticle.title} - ${targetLanguage.name} - ${result.id}`
+        });
         const creator = result.createdBy;
         const emailAddresses = connectedArticle.subscribers.filter((subscriber) => subscriber.id !== creator.id).map(subscriber => subscriber.email);
         await sendEmails(emailAddresses, create_translation_request_1.createTranslationRequestEmailTemplate, `EM GUIDE: Translation request has been created for ${connectedArticle.title} by ${creator.firstname}`, connectedArticle, result, creator);

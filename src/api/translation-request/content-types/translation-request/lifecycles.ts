@@ -58,7 +58,7 @@ const sendEmails = async (
       to: recipient,
       from: env('SMTP_EMAIL'),
       replyTo: env('SMTP_EMAIL'),
-      subject: env("ENVIRONMENT") === "development" ?  `TEST ${title}` : title,
+      subject: env("ENVIRONMENT") === "development" ? `TEST ${title}` : title,
       html: template({
         articleTitle: article.title,
         language: translationRequest.language.name,
@@ -116,16 +116,17 @@ export default {
     if (translationRequests && translationRequests.length > 0) {
       throw new ValidationError('A translation request for this article in this language already exists.');
     }
-    
-    if(data.translated_by && data.translated_by.connect.length === 0)  {
+
+    if (data.translated_by && data.translated_by.connect.length === 0) {
       throw new ValidationError('A translator needs to be assigned to the translation request.');
     }
-
-    data.relation_title_workaround = `${connectedArticle.title} - ${connectedArticle.language.name}`
   },
 
   async afterCreate(event) {
     const { result, params } = event;
+    const knex = strapi.db.connection;
+
+    const targetLanguage = await strapi.entityService.findOne('api::language.language', params.data.language.connect[0].id)
 
     const connectedArticle = await strapi.entityService.findOne('api::article.article', params.data.article.connect[0].id, {
       populate: ["subscribers", "language"]
@@ -134,6 +135,11 @@ export default {
     if (!connectedArticle) {
       throw new ValidationError('Article not found');
     }
+
+    await knex('translation_requests').where('id', '=', result.id).update({
+      relation_title_workaround: `${connectedArticle.title} - ${targetLanguage.name} - ${result.id}`
+    });
+
 
     const creator = result.createdBy;
 
