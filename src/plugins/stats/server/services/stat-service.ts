@@ -210,7 +210,7 @@ function calculateLanguages(translationRequests: TranslationRequest[]) {
     if (translationRequest?.original_language?.code) fromLanguages.set(translationRequest.original_language.code, (fromLanguages.get(translationRequest.original_language.code) || 0) + 1);
 
     // @ts-expect-error
-    if (translationRequest?.language?.code) toLanguages.set(translationRequest.language.code, (fromLanguages.get(translationRequest.language.code) || 0) + 1);
+    if (translationRequest?.language?.code) toLanguages.set(translationRequest.language.code, (toLanguages.get(translationRequest.language.code) || 0) + 1);
   });
 
   return {

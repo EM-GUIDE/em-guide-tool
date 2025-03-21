@@ -138,7 +138,7 @@ function calculateLanguages(translationRequests) {
             fromLanguages.set(translationRequest.original_language.code, (fromLanguages.get(translationRequest.original_language.code) || 0) + 1);
         // @ts-expect-error
         if ((_b = translationRequest === null || translationRequest === void 0 ? void 0 : translationRequest.language) === null || _b === void 0 ? void 0 : _b.code)
-            toLanguages.set(translationRequest.language.code, (fromLanguages.get(translationRequest.language.code) || 0) + 1);
+            toLanguages.set(translationRequest.language.code, (toLanguages.get(translationRequest.language.code) || 0) + 1);
     });
     return {
         from: fromLanguages,
